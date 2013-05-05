@@ -120,6 +120,7 @@ TOKEN :
 | < GETPLAINSTARTTEXT : "get-plain-start-text" >
 | < GETSTARTVALUE : "get-start-value" >
 | < GETVAR : "get-var" >
+| < GETCOMPONENT : "get-component" >
 | < GREATER : ">" >
 | < IF : "if" >
 | < INITRUN : "init-runtime" >
@@ -509,7 +510,7 @@ ArrayList getProp() : //call to get property
 Token getVar() : //call to get variable
 {Token compName;}
 {
-  < GETVAR > compName = < COMPNAME >  {
+  (< GETVAR > | < GETCOMPONENT >) compName = < COMPNAME >  {
 	
     return compName;}
 }
@@ -706,7 +707,7 @@ ArrayList propVal(boolean inList) : //possible property values
 {
  propertyValue = < ANYTEXT > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
 | propertyValue = < COLORVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
-| propertyValue = < DECIMALVAL > {System.out.println(propertyValue.image); propValList.add(propertyValue.image); if(!inList) propValList.add("float"); return propValList;}
+| propertyValue = < DECIMALVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("float"); return propValList;}
 | propertyValue = < TRUE > {propValList.add("true"); if(!inList) propValList.add("boolean"); return propValList;}
 | propertyValue = < RUNTIMEVAL > {propValList.add("false"); if(!inList) propValList.add("boolean"); return propValList;}
 | propertyValue = getVar() {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}

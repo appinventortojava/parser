@@ -94,161 +94,163 @@ public interface YailParserConstants {
   /** RegularExpression Id. */
   int GETVAR = 45;
   /** RegularExpression Id. */
-  int GREATER = 46;
+  int GETCOMPONENT = 46;
   /** RegularExpression Id. */
-  int IF = 47;
+  int GREATER = 47;
   /** RegularExpression Id. */
-  int INITRUN = 48;
+  int IF = 48;
   /** RegularExpression Id. */
-  int ISANUM = 49;
+  int INITRUN = 49;
   /** RegularExpression Id. */
-  int LESS = 50;
+  int ISANUM = 50;
   /** RegularExpression Id. */
-  int LEXVAL = 51;
+  int LESS = 51;
   /** RegularExpression Id. */
-  int LIST = 52;
+  int LEXVAL = 52;
   /** RegularExpression Id. */
-  int LISTFORRUNTIME = 53;
+  int LIST = 53;
   /** RegularExpression Id. */
-  int LISTINIT = 54;
+  int LISTFORRUNTIME = 54;
   /** RegularExpression Id. */
-  int LPAREN = 55;
+  int LISTINIT = 55;
   /** RegularExpression Id. */
-  int LOG = 56;
+  int LPAREN = 56;
   /** RegularExpression Id. */
-  int MAKELIST = 57;
+  int LOG = 57;
   /** RegularExpression Id. */
-  int MAX = 58;
+  int MAKELIST = 58;
   /** RegularExpression Id. */
-  int MIN = 59;
+  int MAX = 59;
   /** RegularExpression Id. */
-  int MINUS = 60;
+  int MIN = 60;
   /** RegularExpression Id. */
-  int MOD = 61;
+  int MINUS = 61;
   /** RegularExpression Id. */
-  int MULTIPLY = 62;
+  int MOD = 62;
   /** RegularExpression Id. */
-  int OPENANOTHERSCREEN = 63;
+  int MULTIPLY = 63;
   /** RegularExpression Id. */
-  int OPENANOTHERSCREENWITHVALUE = 64;
+  int OPENANOTHERSCREEN = 64;
   /** RegularExpression Id. */
-  int PACKAGE = 65;
+  int OPENANOTHERSCREENWITHVALUE = 65;
   /** RegularExpression Id. */
-  int PLUS = 66;
+  int PACKAGE = 66;
   /** RegularExpression Id. */
-  int PROPTYPE = 67;
+  int PLUS = 67;
   /** RegularExpression Id. */
-  int PROPNAME = 68;
+  int PROPTYPE = 68;
   /** RegularExpression Id. */
-  int QUOTE = 69;
+  int PROPNAME = 69;
   /** RegularExpression Id. */
-  int QUOTIENT = 70;
+  int QUOTE = 70;
   /** RegularExpression Id. */
-  int RANDFRAC = 71;
+  int QUOTIENT = 71;
   /** RegularExpression Id. */
-  int RANDINT = 72;
+  int RANDFRAC = 72;
   /** RegularExpression Id. */
-  int RANDOMSETSEED = 73;
+  int RANDINT = 73;
   /** RegularExpression Id. */
-  int REMAINDER = 74;
+  int RANDOMSETSEED = 74;
   /** RegularExpression Id. */
-  int REQUIRE = 75;
+  int REMAINDER = 75;
   /** RegularExpression Id. */
-  int ROUND = 76;
+  int REQUIRE = 76;
   /** RegularExpression Id. */
-  int RPAREN = 77;
+  int ROUND = 77;
   /** RegularExpression Id. */
-  int RUNTIMEVAL = 78;
+  int RPAREN = 78;
   /** RegularExpression Id. */
-  int SETPROP = 79;
+  int RUNTIMEVAL = 79;
   /** RegularExpression Id. */
-  int SETTHISFORM = 80;
+  int SETPROP = 80;
   /** RegularExpression Id. */
-  int SETVAR = 81;
+  int SETTHISFORM = 81;
   /** RegularExpression Id. */
-  int SIN = 82;
+  int SETVAR = 82;
   /** RegularExpression Id. */
-  int SQUAREROOT = 83;
+  int SIN = 83;
   /** RegularExpression Id. */
-  int STRAPPEND = 84;
+  int SQUAREROOT = 84;
   /** RegularExpression Id. */
-  int STRCONTAINS = 85;
+  int STRAPPEND = 85;
   /** RegularExpression Id. */
-  int STREMPTY = 86;
+  int STRCONTAINS = 86;
   /** RegularExpression Id. */
-  int STRGREATER = 87;
+  int STREMPTY = 87;
   /** RegularExpression Id. */
-  int STRLEN = 88;
+  int STRGREATER = 88;
   /** RegularExpression Id. */
-  int STRLESS = 89;
+  int STRLEN = 89;
   /** RegularExpression Id. */
-  int STRREPLACEALL = 90;
+  int STRLESS = 90;
   /** RegularExpression Id. */
-  int STRSPLIT = 91;
+  int STRREPLACEALL = 91;
   /** RegularExpression Id. */
-  int STRSPLITANY = 92;
+  int STRSPLIT = 92;
   /** RegularExpression Id. */
-  int STRSPLITFIRST = 93;
+  int STRSPLITANY = 93;
   /** RegularExpression Id. */
-  int STRSPLITFIRSTANY = 94;
+  int STRSPLITFIRST = 94;
   /** RegularExpression Id. */
-  int STRSPLITSPACES = 95;
+  int STRSPLITFIRSTANY = 95;
   /** RegularExpression Id. */
-  int STRSTARTAT = 96;
+  int STRSPLITSPACES = 96;
   /** RegularExpression Id. */
-  int STRSUBSTRING = 97;
+  int STRSTARTAT = 97;
   /** RegularExpression Id. */
-  int STRTOLOWER = 98;
+  int STRSUBSTRING = 98;
   /** RegularExpression Id. */
-  int STRTOUPPER = 99;
+  int STRTOLOWER = 99;
   /** RegularExpression Id. */
-  int STRTRIM = 100;
+  int STRTOUPPER = 100;
   /** RegularExpression Id. */
-  int TAN = 101;
+  int STRTRIM = 101;
   /** RegularExpression Id. */
-  int TRIPLE = 102;
+  int TAN = 102;
   /** RegularExpression Id. */
-  int TRUE = 103;
+  int TRIPLE = 103;
   /** RegularExpression Id. */
-  int WHILE = 104;
+  int TRUE = 104;
   /** RegularExpression Id. */
-  int YAILADDTOLIST = 105;
+  int WHILE = 105;
   /** RegularExpression Id. */
-  int YAILEQUAL = 106;
+  int YAILADDTOLIST = 106;
   /** RegularExpression Id. */
-  int YAILGETITEM = 107;
+  int YAILEQUAL = 107;
   /** RegularExpression Id. */
-  int YAILISALIST = 108;
+  int YAILGETITEM = 108;
   /** RegularExpression Id. */
-  int YAILLISTAPPEND = 109;
+  int YAILISALIST = 109;
   /** RegularExpression Id. */
-  int YAILLISTCOPY = 110;
+  int YAILLISTAPPEND = 110;
   /** RegularExpression Id. */
-  int YAILLISTINSERT = 111;
+  int YAILLISTCOPY = 111;
   /** RegularExpression Id. */
-  int YAILLISTLENGTH = 112;
+  int YAILLISTINSERT = 112;
   /** RegularExpression Id. */
-  int YAILLISTMEMBER = 113;
+  int YAILLISTLENGTH = 113;
   /** RegularExpression Id. */
-  int YAILLISTREMOVE = 114;
+  int YAILLISTMEMBER = 114;
   /** RegularExpression Id. */
-  int YAILLISTFROMCSVROW = 115;
+  int YAILLISTREMOVE = 115;
   /** RegularExpression Id. */
-  int YAILLISTFROMCSVTABLE = 116;
+  int YAILLISTFROMCSVROW = 116;
   /** RegularExpression Id. */
-  int YAILLISTINDEX = 117;
+  int YAILLISTFROMCSVTABLE = 117;
   /** RegularExpression Id. */
-  int YAILLISTRANDOM = 118;
+  int YAILLISTINDEX = 118;
   /** RegularExpression Id. */
-  int YAILLISTSETITEM = 119;
+  int YAILLISTRANDOM = 119;
   /** RegularExpression Id. */
-  int YAILLISTTOCSVROW = 120;
+  int YAILLISTSETITEM = 120;
   /** RegularExpression Id. */
-  int YAILLISTTOCSVTABLE = 121;
+  int YAILLISTTOCSVROW = 121;
   /** RegularExpression Id. */
-  int COMPNAME = 122;
+  int YAILLISTTOCSVTABLE = 122;
   /** RegularExpression Id. */
-  int ANYTEXT = 123;
+  int COMPNAME = 123;
+  /** RegularExpression Id. */
+  int ANYTEXT = 124;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -303,6 +305,7 @@ public interface YailParserConstants {
     "\"get-plain-start-text\"",
     "\"get-start-value\"",
     "\"get-var\"",
+    "\"get-component\"",
     "\">\"",
     "\"if\"",
     "\"init-runtime\"",
@@ -382,7 +385,7 @@ public interface YailParserConstants {
     "<COMPNAME>",
     "<ANYTEXT>",
     "\"#|\"",
-    "<token of kind 125>",
+    "<token of kind 126>",
     "\"|#\"",
   };
 
