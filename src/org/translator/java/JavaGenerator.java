@@ -207,25 +207,7 @@ class JavaGenerator {
 						}
 					}
 				}
-			/*	if (jVar.getMembers() != null) {
-					ArrayList tempVarMembers = jVar.getMembers(); //getMembers returns an ArrayList
-					for(int i = 0; i < tempVarMembers.size(); i++){
-						if(((ArrayList) tempVarMembers.get(i)).size() == 1){
-							defineFunction.add(new ValueStatement(new Value(jVar
-									.getName() + "IL.add(" + ((ArrayList) tempVarMembers.get(i)).get(0).toString() + ")")));
-						}
-						else{
-							classSegment.add(declaration("ArrayList",jVar.getName()+"IL" + i));
-							defineFunction.add(new AssignmentStatement(jVar.getName()+"IL" + i,
-									new ConstructorCall(
-											TranslatorConstants.COMPONENT_PREFIX.concat("ArrayList"), params)));
-							convertList((ArrayList) tempVarMembers.get(i), defineFunction, jVar.getName()+"IL" + i, params, jVar.getName(), classSegment);
-							defineFunction.add(new ValueStatement(new Value(jVar
-									.getName() + "IL.add(" + jVar.getName()+"IL"+i + ")")));
-						}
-					}
-				}
-				*/
+			
 				defineFunction.add(new ValueStatement(new Value(jVar.getName()+".setItems("+jVar.getName()+"IL)")));
 			}
 			else if(jVar.getType().contentEquals("Random")){
@@ -366,7 +348,7 @@ class JavaGenerator {
 		for (ComponentCall componentCall : componentCalls) {
 			if (!componentCall.getMarker() && componentCall.getCalledComponentName().length() > 0) {
 				String functionName = componentCall.getCalledComponentName()+"."+componentCall.getMethod();
-						
+				
 				Value[] values = new Value[componentCall.getArguments().size()];
 				for (int j = 0; j < values.length; j++) {
 					String tempstring=componentCall.getArguments().get(j);
@@ -400,8 +382,20 @@ class JavaGenerator {
 					codeSegment.add(new AssignmentStatement(componentCall.getVar(),
 							new FunctionCall(functionName, values)));
 				}
+			//User defined procedures go here
 			} else if (!componentCall.getMarker()) {
-				codeSegment.add(new ValueStatement(new Value(componentCall.getMethod() + "()")));
+				StringBuffer procedureCall = new StringBuffer(componentCall.getMethod() + "(");
+				//Append all arguments
+				if(componentCall.getArguments() != null && componentCall.getArguments().size() > 0){
+					//add the first one to avoid comma problem.
+					procedureCall.append(componentCall.getArguments().get(0));
+					for(int i = 1; i < componentCall.getArguments().size(); i++)
+						procedureCall.append(", " + componentCall.getArguments().get(i));
+					
+				}
+				procedureCall.append(")");
+				codeSegment.add(new ValueStatement(new Value(procedureCall.toString())));
+				
 			}
 			//generate if/else code
 			else if (componentCall.getCalledComponentName().contentEquals("if")) {

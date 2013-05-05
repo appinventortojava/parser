@@ -515,9 +515,10 @@ Token getVar() : //call to get variable
 }
 
 Token getVarProp() :
-{Token listName = null;}
+{Token listName = null; ArrayList argsList;}
 {
   < LPAREN > (listName = getVariables() | getProp()) < RPAREN >
+  (argsList = propVal(false) {globalCall.addArgument(argsList.get(0).toString());})*
   {return listName;}
 }
 
@@ -529,7 +530,7 @@ Token getVariables() : //get-var
   	if(!isParam)
   	{  
   		ComponentCall compCall = new ComponentCall("");
-  		compCall.setMethod(listName.image);
+  		compCall.setMethod(listName.image + "test");
   		globalCall = compCall;
  	}
  	else
@@ -705,7 +706,7 @@ ArrayList propVal(boolean inList) : //possible property values
 {
  propertyValue = < ANYTEXT > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
 | propertyValue = < COLORVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
-| propertyValue = < DECIMALVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("float"); return propValList;}
+| propertyValue = < DECIMALVAL > {System.out.println(propertyValue.image); propValList.add(propertyValue.image); if(!inList) propValList.add("float"); return propValList;}
 | propertyValue = < TRUE > {propValList.add("true"); if(!inList) propValList.add("boolean"); return propValList;}
 | propertyValue = < RUNTIMEVAL > {propValList.add("false"); if(!inList) propValList.add("boolean"); return propValList;}
 | propertyValue = getVar() {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
