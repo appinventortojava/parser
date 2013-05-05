@@ -1,0 +1,1924 @@
+options
+{
+  STATIC = false;
+  IGNORE_CASE = false;
+}
+
+PARSER_BEGIN(YailParser)
+
+//AppComponent, has hashmap of String, String; key: method, value: actual value of method.
+//ArrayList<CodeBlock> ?? 
+
+package org.translator.parser;
+import org.translator.java.AppComponent;
+import java.util.HashMap;
+import java.util.ArrayList;
+import org.translator.java.JVar;
+import org.translator.java.CodeBlock;
+import org.translator.java.ComponentCall;
+import org.translator.java.IfStatement;
+import org.translator.java.ForEach;
+import org.translator.java.ForRange;
+import org.translator.java.WhileLoop;
+import org.translator.java.Method;
+
+public class YailParser
+{
+  static String packageName = "blank";
+  HashMap<String, AppComponent> components = new HashMap<String, AppComponent>();
+  ArrayList<JVar> variables = new ArrayList<JVar>();
+  ArrayList<CodeBlock> events = new ArrayList<CodeBlock>();
+  ArrayList<Method > methods = new ArrayList<Method >();
+  HashMap<String, ArrayList<String >> lookUps = new HashMap<String, ArrayList<String >>(); //Delete this
+  {try {
+  buildTable();
+  } catch (ParseException e) {
+  e.printStackTrace();
+  }
+  }
+  CodeBlock codeBlock;
+  boolean isSubEvent; //is in a code block
+  boolean hasElse;
+  boolean hasRandom; //check to see if an instance of random has been created
+  boolean isParam; //check to see if line is a param of a function or a new function call
+  String parentEvent; //may be useless
+  //global vars
+  ComponentCall globalCall; 
+}
+
+PARSER_END(YailParser)
+
+TOKEN_MGR_DECLS :
+{
+}
+
+SKIP :
+{
+  < " " >
+| < "\n" >
+| < "\r" >
+| < "\t" >
+| < "//" (~[ "\n" ])* "\n" >
+}
+
+TOKEN :
+{
+ < ABS : "abs" >
+| < ACOS : "acos-degrees" >
+| < ADDCOMP : "add-component" >
+| < APOS : "'" >
+| < ASIN : "asin-degrees" >
+| < ATAN : "atan-degrees" >
+| < ATAN2 : "atan2-degrees" >
+| < AND : "and-delayed" >
+| < OR : "or-delayed" >
+| < BEGIN : "begin" >
+| < CALLCOMP : "call-component-method" >
+| < CALLPRIM : "call-yail-primitive" >
+| < CEILING : "yail-ceiling" >
+| < CLOSESCREEN : "close-screen" >
+| < CLOSEAPP : "close-application" >
+| < CLOSESCREENPLAINTEXT : "close-screen-with-plain-text" >
+| < CLOSESCREENWITHVALUE : "close-screen-with-value" >
+| < COLORVAL :
+    "#x"
+    (
+      [ "F" ]
+    | [ "0" - "9" ]
+    )* >
+| < DECIMALVAL :
+    ([ "-" ])? ([ "." ])?  ([ "0"-"9" ])+
+    (
+      [ "." ] ([ "0"-"9" ])+
+    )? >
+| < CONVDEGTORADI : "degrees->radians" >
+| < CONVRADITODEG : "radians->degrees" >
+| < COS : "cos-degrees" >
+| < DEF : "def" >
+| < DEFINEEVENT : "define-event" >
+| < DEFINEFORM : "define-form" >
+| < DIVIDE : "yail-divide" >
+| < DOAFTERFORM : "do-after-form-creation" >
+| < EXP : "exp" >
+| < EXPT : "expt" >
+| < EQUAL : "=" >
+| < FLOOR : "yail-floor" >
+| < FOREACH : "foreach" >
+| < FORMATASDEC : "format-as-decimal" >
+| < FORMNAME :
+    ([ "a"-"z" ])+
+    (
+      "."
+      (
+        [ "A"-"Z", "a"-"z", "0"-"9" ]
+      | "_"
+      )+
+    )+ >
+| < FORRANGE : "forrange" >
+| < FSLASH : "\\" >
+| < GETPROP : "get-property" >
+| < GETPLAINSTARTTEXT : "get-plain-start-text" >
+| < GETSTARTVALUE : "get-start-value" >
+| < GETVAR : "get-var" >
+| < GREATER : ">" >
+| < IF : "if" >
+| < INITRUN : "init-runtime" >
+| < ISANUM : "is-number?" >
+| < LESS : "<" >
+| < LEXVAL : "lexical-value" >
+| < LIST : "list" >
+| < LISTFORRUNTIME : "*list-for-runtime*" >
+| < LISTINIT : "\"make a list\"" >
+| < LPAREN : "(" >
+| < LOG : "log" >
+| < MAKELIST : "make-yail-list" >
+| < MAX : "max" >
+| < MIN : "min" >
+| < MINUS : "-" >
+| < MOD : "modulo" >
+| < MULTIPLY : "*" >
+| < OPENANOTHERSCREEN : "open-another-screen" >
+| < OPENANOTHERSCREENWITHVALUE : "open-another-screen-with-start-value" >
+| < PACKAGE : "<com.google.youngandroid.runtime>" >
+| < PLUS : "+" >
+| < PROPTYPE : "'" ([ "a"-"z" ])+ >
+| < PROPNAME : "'" [ "A"-"Z" ] ([ "0"-"9", "a"-"z", "A"-"Z" ])* >
+| < QUOTE : "\"" >
+| < QUOTIENT : "quotient" >
+| < RANDFRAC : "random-fraction" >
+| < RANDINT : "random-integer" >
+| < RANDOMSETSEED : "random-set-seed" >
+| < REMAINDER : "remainder" >
+| < REQUIRE : "require" >
+| < ROUND : "yail-round" >
+| < RPAREN : ")" >
+| < RUNTIMEVAL : "#f" >
+| < SETPROP : "set-and-coerce-property!" >
+| < SETTHISFORM : "set-this-form" >
+| < SETVAR : "set-var!" >
+| < SIN : "sin-degrees" >
+| < SQUAREROOT : "sqrt" >
+| < STRAPPEND : "string-append" >
+| < STRCONTAINS : "string-contains" >
+| < STREMPTY : "string-empty?" >
+| < STRGREATER : "string>?" >
+| < STRLEN : "string-length" >
+| < STRLESS : "string<?" >
+| < STRREPLACEALL : "string-replace-all" >
+| < STRSPLIT : "string-split" >
+| < STRSPLITANY : "string-split-at-any" >
+| < STRSPLITFIRST : "string-split-at-first" >
+| < STRSPLITFIRSTANY : "string-split-at-first-of-any" >
+| < STRSPLITSPACES : "string-split-at-spaces" >
+| < STRSTARTAT : "string-starts-at" >
+| < STRSUBSTRING : "string-substring" >
+| < STRTOLOWER : "string-to-lower-case" >
+| < STRTOUPPER : "string-to-upper-case" >
+| < STRTRIM : "string-trim" >
+| < TAN : "tan-degrees" >
+| < TRIPLE : ";;;" >
+| < TRUE: "#t" >
+| < WHILE : "while" >
+| < YAILADDTOLIST : "yail-list-add-to-list!" >
+| < YAILEQUAL : "yail-equal?" >
+| < YAILGETITEM : "yail-list-get-item" >
+| < YAILISALIST : "yail-list?" >
+| < YAILLISTAPPEND : "yail-list-append!" >
+| < YAILLISTCOPY : "yail-list-copy" >
+| < YAILLISTINSERT : "yail-list-insert-item!" >
+| < YAILLISTLENGTH : "yail-list-length" >
+| < YAILLISTMEMBER : "yail-list-member?" >
+| < YAILLISTREMOVE : "yail-list-remove-item!" >
+| < YAILLISTFROMCSVROW : "yail-list-from-csv-row" >
+| < YAILLISTFROMCSVTABLE : "yail-list-from-csv-table" >
+| < YAILLISTINDEX : "yail-list-index" >
+| < YAILLISTRANDOM : "yail-list-pick-random" >
+| < YAILLISTSETITEM : "yail-list-set-item!" >
+| < YAILLISTTOCSVROW : "yail-list-to-csv-row" >
+| < YAILLISTTOCSVTABLE : "yail-list-to-csv-table" >
+| < COMPNAME : ([ "A"-"Z", "0"-"9", "a"-"z", ":", "!", "-" ])+ >
+| < ANYTEXT :
+    [ "\"" ]
+    (
+      ~[ "\"" ]
+    | "\\\""
+    )*
+    [ "\"" ] >
+}
+
+SKIP :
+{
+  < "#|" >
+  {
+    SwitchTo(IN_DECL);
+  }
+}
+
+< IN_DECL >
+SKIP :
+{
+  < ~[ ] >
+| < "|#" >
+  {
+    SwitchTo(DEFAULT);
+  }
+}
+
+void addComp() : //add-component
+{Token parentName = null; Token compType = null; Token compName = null;}
+{ 
+    < ADDCOMP > parentName = < COMPNAME > compType = < COMPNAME > compName = < COMPNAME >
+    {
+   AppComponent appComponent = new AppComponent(parentName.image);
+     appComponent.setType(compType.image);
+     appComponent.setComponentName(compName.image);
+     components.put(appComponent.getComponentName(), appComponent);}
+  
+}
+
+void addComps() : //comp bodies 
+{}
+{
+  addComp() compSet()
+}
+
+void afterFormBody() : //after form framework
+{}
+{
+  < LPAREN > afterFormBodyS() < RPAREN >
+}
+
+void afterFormBodyS() : //possible after form bodies
+{}
+{
+  setProp()
+}
+
+void beginBody() : //conditional bodies
+{}
+{
+  < LPAREN > < BEGIN > eventBody() (< ANYTEXT >)?  < RPAREN > 
+}
+
+ArrayList callComponents() : //call-component-methods
+{Token propName; Token callName; ArrayList paramList = new ArrayList(); ArrayList propValObject = new ArrayList();}
+{
+  < CALLCOMP > propName = < PROPNAME > callName = < PROPNAME > paramList = listParams() setPropType()
+  {ComponentCall compCall = new ComponentCall(propName.image.replace("'",""));
+   compCall.setMethod(callName.image.replace("'",""));
+   if (paramList.size() > 1) compCall.setArgs(paramList);
+   else if(paramList.size() == 1) compCall.addArgument(((ArrayList)paramList.get(0)).get(0).toString());
+
+   if(!isSubEvent)codeBlock.addCall(compCall);
+
+   String call = propName.image.replace("'","") + "." + callName.image.replace("'","") + "(";
+   
+   for(Object list : paramList)
+   {
+     
+   		call = call + ((ArrayList)list).get(0).toString();
+		
+   }
+   call = call + ")";
+   propValObject.add(call);
+   
+   return propValObject;
+  }
+}
+
+void compBody() : //possible comp bodies
+{}
+{
+  
+  addComps()
+| defEvent()
+| doAfterForm()
+| initRun()
+}
+
+void compBodyS() : //possible comp bodies frame
+{}
+{
+  < LPAREN > compBody() < RPAREN > compBodyS()
+|
+  {}
+}
+
+void compDef() : // ;;;<COMPNAME> onwards
+{codeBlock = null;}
+{
+  < TRIPLE > < COMPNAME > compBodyS() compDefs()
+}
+
+void compDefs() :
+{}
+{
+  compDef()
+|
+  {}
+}
+
+void compSet() : //sets props in addComps
+{}
+{
+  < LPAREN > setProp() < RPAREN > compSet()
+|
+  {}
+}
+
+void defs() : //zero or more definitions
+{}
+{
+  def()
+|
+  {}
+}
+
+void def() : //starts with "def (" the goes to func or var def
+{}
+{
+  < LPAREN > < DEF > defP() < RPAREN > defs()
+}
+
+void defP() : //function or variable definition
+{}
+{
+  funcDef()
+| varDef()
+}
+
+void defEvent() : //define-event
+{}
+{
+  defEventHeader() eventBody()
+}
+
+CodeBlock defEventHeader() : //define-event header.. name, type, etc..
+{Token compName; Token methodName; isSubEvent = true;}
+{
+  < DEFINEEVENT > compName = < COMPNAME > methodName = < COMPNAME >
+	{codeBlock = new CodeBlock(compName.image); codeBlock.setMethod(methodName.image);}
+   < LPAREN > eventParams() < RPAREN >
+  {if(components.get(codeBlock.getComponent()) != null)
+    setParamTypes(components.get(codeBlock.getComponent()).getType(), codeBlock.getMethod());
+  events.add(codeBlock);
+  
+   isSubEvent = false; return codeBlock;}
+}
+
+void setParamTypes(String type, String method) :
+{}
+{
+{
+  
+  if(method.contentEquals("MessageReceived") && type.contentEquals("Texting"))
+  {
+	codeBlock.addArgType("(String)");
+	codeBlock.addArgType("(String)");
+  }
+  else if(method.contentEquals("AfterPicture") && type.contentEquals("Camera"))
+  {
+	codeBlock.addArgType("(String)");
+  }
+  else if(method.contentEquals("Dragged") && type.contentEquals("Canvas"))
+  {
+	codeBlock.addArgType("(Float)");
+	codeBlock.addArgType("(Float)");
+	codeBlock.addArgType("(Float)");
+	codeBlock.addArgType("(Float)");
+	codeBlock.addArgType("(Float)");
+	codeBlock.addArgType("(Float)");
+	codeBlock.addArgType("(Boolean)");
+  }
+  else if(method.contentEquals("Touched") && type.contentEquals("Canvas"))
+  {
+	codeBlock.addArgType("(Float)");
+	codeBlock.addArgType("(Float)");
+	codeBlock.addArgType("(Boolean)");
+  }
+  else if(method.contentEquals("Touched") && type.contentEquals("ImageSprite"))
+  {
+	codeBlock.addArgType("(Float)");
+	codeBlock.addArgType("(Float)");
+  }
+  else if(method.contentEquals("LocationChanged") && type.contentEquals("LocationSensor"))
+  {
+	codeBlock.addArgType("(Double)");
+	codeBlock.addArgType("(Double)");
+	codeBlock.addArgType("(Double)");
+  }
+	}
+}
+
+void defineForm() : //define-form...
+{
+  Token packageNameToken;
+}
+{
+  < LPAREN > < DEFINEFORM > packageNameToken = < FORMNAME > < COMPNAME > < RPAREN >
+  {
+    packageName = packageNameToken.image.toString().substring(0, packageNameToken.image.lastIndexOf("."));
+  }
+}
+
+void doAfterForm() : //do-after-form-creation
+{}
+{
+  < DOAFTERFORM > (afterFormBody())+
+}
+
+void eventBody() : //event body frame, zero or more
+{}
+{
+  < LPAREN > (eventBodyS() {isParam = true;})+ {isParam = false; if(globalCall != null)codeBlock.addCall(globalCall); globalCall = null;} < RPAREN > eventBody()
+|
+  {}
+}
+
+
+String eventBodyS() : //possible event bodies, need to add ifs, fors etc
+{Token t = null; ArrayList propValObject;}
+{
+  callComponents() {return null;}
+| forEachBlock() {return null;}
+| forRangeBlock() {return null;}
+| t = getVarProp() {if (t != null) return t.image; else return "";}
+| propValObject = propVal(false) { 
+									if(propValObject.get(0) instanceof ArrayList)
+  										return ((ArrayList)propValObject.get(0)).get(0).toString();
+  									else
+  										return propValObject.get(0).toString();}
+| ifBlock() {return null;}
+| setProp() {return null;}
+| setThisForm() {return null;}
+| setVariables() {return null;}
+| yailControlWhile() {return null;}
+| yailPrims () {return null;}
+}
+
+void eventParams() : //possible event params
+{Token param;}
+{
+  param = < COMPNAME > {codeBlock.addArg(param.image);} eventParams()
+|
+  {}
+}
+
+
+void funcBody() : //function body
+{}
+{
+  eventBody() 
+}
+
+void funcBodyS() : //possible function body parts
+{}
+{
+  eventBodyS()
+}
+
+void funcDef() : //function definition
+{}
+{
+  funcName() funcBody()
+}
+
+void funcName() : //function name
+{Token compName; Token arg; ArrayList<String > argList = new ArrayList<String >();}
+{
+  < LPAREN > compName = < COMPNAME >  (arg = < COMPNAME > {argList.add(arg.image);})* < RPAREN >
+  {
+   codeBlock = new CodeBlock("method");
+   codeBlock.setB1(true);
+   methods.add(new Method(compName.image, codeBlock, argList));
+  }
+}
+
+ArrayList getProp() : //call to get property
+{ArrayList propValObject = new ArrayList(); Token compName; Token propName;}
+{
+  //Might have to get rid of '
+  < GETPROP > compName = < PROPNAME > propName = < PROPNAME >
+  {String getProperty = compName.image.replace("'", "") + "." + propName.image.replace("'", "") + "()";
+    propValObject.add(getProperty);
+    if(isParam) globalCall.addArgument(getProperty);
+  	return propValObject;
+  }
+}
+
+Token getVar() : //call to get variable
+{Token compName;}
+{
+  < GETVAR > compName = < COMPNAME >  {
+	
+    return compName;}
+}
+
+Token getVarProp() :
+{Token listName = null;}
+{
+  < LPAREN > (listName = getVariables() | getProp()) < RPAREN >
+  {return listName;}
+}
+
+Token getVariables() : //get-var
+{Token listName;}
+{
+  < GETVAR > listName = < COMPNAME > /*add args */
+  { //Might be a problem
+  	if(!isParam)
+  	{  
+  		ComponentCall compCall = new ComponentCall("");
+  		compCall.setMethod(listName.image);
+  		globalCall = compCall;
+ 	}
+ 	else
+ 	{
+ 	  globalCall.addArgument(listName.image);
+ 	}
+    return listName;}
+}
+
+void headers() : //form def and requirements
+{}
+{
+  defineForm() requires()
+}
+
+void ifBlock() : //if statements
+{String operator; CodeBlock mainBlock = codeBlock; CodeBlock elseBlock; isSubEvent = true;}
+{
+  {mainBlock.addCall(new ComponentCall("if", ""));
+  codeBlock = new CodeBlock("if");}
+  < IF > operator = ifTest()
+  beginBody()
+  {IfStatement ifStat = new IfStatement(null, null, operator, codeBlock);
+   }
+  ({codeBlock = new CodeBlock("else");}
+    beginBody()
+    {ifStat.setElseNoCon(codeBlock);}
+    )?
+    {mainBlock.addIf(ifStat);
+     codeBlock = mainBlock;
+     isSubEvent = false;
+    }
+}
+
+void forEachBlock() : //for each statements
+{CodeBlock mainBlock = codeBlock; Token var; String type = "String"; String listName;}
+{
+  {mainBlock.addCall(new ComponentCall("foreach", "")); codeBlock = new CodeBlock("foreach");}
+  < FOREACH > var = < COMPNAME > beginBody() listName = eventBodyS()
+  {mainBlock.addForEach(new ForEach(type, listName, var.image, codeBlock));
+   codeBlock = mainBlock;}
+}
+
+void forRangeBlock() : //for each statements
+{CodeBlock mainBlock = codeBlock; Token var; Token increment; Token end; Token start;}
+{
+  {mainBlock.addCall(new ComponentCall("forrange", "")); codeBlock = new CodeBlock("forrange");}
+  < FORRANGE > var = < COMPNAME > beginBody() increment = < DECIMALVAL > end = < DECIMALVAL > start = < DECIMALVAL >
+  {mainBlock.addForRange(new ForRange(var.image, increment.image, end.image, start.image, codeBlock));
+   codeBlock = mainBlock;}
+}
+
+String ifTest() : //if statement test frame
+{Token test; ArrayList paramList = new ArrayList(); String operators;}
+{
+  < LPAREN > (paramList = yailPrims() | paramList = getProp() | operators = ifTests() {paramList.add(operators);})
+  < RPAREN > {return paramList.get(0).toString();}
+| test = < TRUE > { return "true"; }
+| test = < RUNTIMEVAL > { return "false"; }
+}
+
+String ifTests() :
+{String condition1; String condition2; String operator;}
+{
+ 	( < AND > {operator = "&&";}| < OR > {operator = "||";}) condition1 = ifTest() condition2 = ifTest()
+ 	{return condition1 + operator + condition2;}
+}
+
+void initRun() : //init-runtime, not sure what else this could be
+{}
+{
+  < INITRUN > (< RUNTIMEVAL >)?
+}
+
+ArrayList listParams() : //params for calls with zero or more params
+{ArrayList paramList = new ArrayList(); ArrayList propValObject;}
+{
+  < LPAREN > (< LIST > | < LISTFORRUNTIME >)
+  (
+    propValObject = propVal(false)
+    {
+      
+      paramList.add(propValObject);}
+  )*
+  < RPAREN >
+  {
+    return paramList;}
+}
+
+ArrayList listStuff() : //list ... getting messy, might be worth refactoring
+{Token t; ArrayList paramList = new ArrayList(); ArrayList propValObject;}
+{
+  (< LIST > | < LISTFORRUNTIME >) ((propValObject = propVal(true) {paramList.add(propValObject);})*
+    (propValObject = listStuffP() {paramList.add(propValObject);})?)
+  { return paramList; }
+  //either gives the name of the list (< ANYTEXT >) or creates a new list (The first choice)
+}
+
+ArrayList listStuffP() : //list stuff before listStuff  S
+{ArrayList propValList = new ArrayList();}
+{
+  (< LPAREN > propValList = listStuffS() < RPAREN >
+    ((< LPAREN > propValList = listStuffS() < RPAREN >) | < DECIMALVAL > )? (< ANYTEXT >)?)
+    {return propValList;}
+}
+
+ArrayList listStuffS() : //list ...
+{ArrayList propValList = null;}
+{
+  propValList = compVal() {return propValList;}
+| propValList = getProp() {return propValList;}
+| getVar() {return propValList;}
+| propValList = yailPrims() {return propValList;}
+}
+
+ArrayList makeList() : //make a new list
+{ArrayList paramList = new ArrayList(); String type = "YailList"; ArrayList propValObject;}
+{
+  < MAKELIST > < LPAREN > (< LIST > | < LISTFORRUNTIME >
+      (propValObject = propVal(true)
+      {if(propValObject.size() > 1) {paramList.add(propValObject);} else {paramList.add(propValObject.get(0));}
+        })*)
+       < RPAREN > < APOS > < LPAREN > (< COMPNAME >)*< RPAREN > < LISTINIT >
+  {paramList.add(type);
+  
+  return paramList;}
+}
+
+ArrayList opBlock() : //operator blocks
+{ArrayList paramList = new ArrayList(); String type = "YailList"; ArrayList propValObject = new ArrayList();
+ String operator; }
+{
+  operator = operation() propValObject = listParams() setPropType()
+  {
+    String leftSide = ((ArrayList)propValObject.get(0)).get(0).toString();
+    String rightSide = ((ArrayList)propValObject.get(1)).get(0).toString();
+    paramList.add(leftSide + operator + rightSide);
+    paramList.add("float");
+    
+    return paramList;
+  }
+}
+
+String operation() : //operators
+{Token operator; Token equal = null;}
+{
+  < DIVIDE > {return "/";} 
+| operator = < PLUS > {return operator.image;}
+| operator = < MINUS > {return operator.image;}
+| operator = < YAILEQUAL > {return "=";}
+| operator = < MULTIPLY > {return operator.image;}
+| operator = < LESS > (equal = < EQUAL >)? {if(equal != null) return operator.image+equal.image; else return operator.image;}
+| operator = < GREATER > (equal = < EQUAL >)? {if(equal != null) return operator.image+equal.image; else return operator.image;}
+}
+
+void primName() : //name of block the prim corresponds to
+{Token functionName;}
+{
+  functionName = < ANYTEXT >
+|
+  {}
+}
+
+void program() : //program starts here
+{}
+{
+  headers() defs() compDefs() < EOF >
+}
+
+//Return type is ArrayList because a property value could be any type (List or String or Number)
+ArrayList propVal(boolean inList) : //possible property values
+{Token propertyValue; ArrayList propValList = new ArrayList(); ArrayList tempList;}
+{
+ propertyValue = < ANYTEXT > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
+| propertyValue = < COLORVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
+| propertyValue = < DECIMALVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("float"); return propValList;}
+| propertyValue = < TRUE > {propValList.add("true"); if(!inList) propValList.add("boolean"); return propValList;}
+| propertyValue = < RUNTIMEVAL > {propValList.add("false"); if(!inList) propValList.add("boolean"); return propValList;}
+| propertyValue = getVar() {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
+| < LPAREN > tempList = propValS(inList) < RPAREN > {return tempList;} 
+}
+
+ArrayList propValS(boolean inList) : //property values that start with "("
+{ArrayList propValObject = new ArrayList(); Token propertyValue;}
+{
+  propValObject = callComponents() {return propValObject;}
+| propValObject = getProp() {return propValObject;}
+| propertyValue = getVar() {propValObject.add(propertyValue.image); if(!inList) propValObject.add("String"); return propValObject;}
+| ifBlock() {return null;}
+| propValObject = variables() {return propValObject;}
+| propValObject = yailPrims() {return propValObject;} 
+}
+
+ArrayList random() : //random integer
+{ArrayList paramList = new ArrayList(); boolean randInt; ArrayList propValObject = new ArrayList();}
+{
+  randInt = randoms() paramList = listParams() setPropType()
+  {if(randInt)
+  {
+    String arg0 = ((ArrayList)paramList.get(0)).get(0).toString();
+    String arg1 = ((ArrayList)paramList.get(1)).get(0).toString();
+    propValObject.add("random.nextInt("+arg1+"-"+arg0+")"+"+"+arg0);
+  	 return propValObject;
+  }
+  else
+  {propValObject.add("Math.random()");
+    return propValObject;
+  }
+  }
+}
+
+boolean randoms() : //random blocks
+{}
+{
+  < RANDINT > {
+    if(!hasRandom)
+  	{
+     JVar jvar = new JVar("random");
+     jvar.setType("Random");
+     variables.add(jvar);
+     hasRandom = true;
+   	}
+   	return true;
+   	}
+| < RANDFRAC > {return false;}
+}
+
+void requires() : //require <com.google.youngandroid.runtime>
+{}
+{
+  < LPAREN > < REQUIRE > < PACKAGE > < RPAREN >
+}
+
+void setProp() : //set-and-coerce-property! ...
+{Token compName; Token propName; Token propType; String propertyName; Object propertyValue;}
+{
+  < SETPROP > compName = < PROPNAME > propName = < PROPNAME >
+  propertyValue = propVal(true) 
+      < PROPTYPE >
+  { if(components.containsKey(compName.image.replace("'","")) && codeBlock == null)
+    {
+      AppComponent appComponent = components.get(compName.image.replace("'",""));
+      propertyName = propName.image.replace("'", "");
+      appComponent.setProperties(propertyName, ((ArrayList)propertyValue).get(0).toString());
+    }
+    else if(codeBlock != null)
+    {  
+      ComponentCall compCall = new ComponentCall(compName.image.replace("'",""));
+      compCall.setMethod(propName.image.replace("'", ""));
+      if(((ArrayList)propertyValue).size() > 2)
+      	compCall.setArgs((ArrayList)propertyValue);
+      else
+        compCall.addArgument(((ArrayList)propertyValue).get(0).toString());
+      codeBlock.addCall(compCall); 
+  }
+  }
+}
+
+void setPropType() : //type of propVals being set "'( ... ) ""
+{}
+{
+  < APOS > < LPAREN >
+  ( < COMPNAME > | < LIST >)*
+  < RPAREN >
+}
+
+void setThisForm() : //set-this-form
+{}
+{
+ < SETTHISFORM > 
+}
+
+void setVariables() : //set-var!
+{JVar jVar; Token varName; ArrayList propValList;}
+{
+  < SETVAR > varName = < COMPNAME > propValList = propVal(false)
+  {
+    jVar = new JVar(varName.image); jVar.setVal(propValList.get(0).toString());
+  ComponentCall componentCall = new ComponentCall("assignment","");
+  if(codeBlock != null)
+  {
+    codeBlock.addCall(componentCall);
+    codeBlock.addAssignment(jVar);
+  }
+  }
+}
+
+ArrayList stringAppend() : //string-append block
+{ArrayList paramList; ArrayList propValObject = new ArrayList();}
+{
+  < STRAPPEND > paramList = listParams() setPropType()
+
+  {
+    StringBuffer appendTo = new StringBuffer();
+    for(int i = 0; i < paramList.size(); i++)
+    {
+      if(i == 0)
+      {
+        appendTo.append(((ArrayList)paramList.get(i)).get(0).toString());
+      }
+      else
+      {
+	    appendTo.append(" + " + ((ArrayList)paramList.get(i)).get(0).toString());
+      }
+    }
+    propValObject.add(appendTo.toString());
+    return propValObject;
+  }
+}
+
+ArrayList stringContains() : //string contains?
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRCONTAINS > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add(((ArrayList)temp.get(0)).get(0) + ".contains(" + ((ArrayList)temp.get(1)).get(0) + ")");
+    return propVal;
+  }
+}
+
+ArrayList stringEmpty() : //string empty?
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STREMPTY > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add(((String)(((ArrayList)temp.get(0)).get(0))) + ".length() < 1");
+    return propVal;
+  }
+}
+
+ArrayList stringGreater() : //string-split-at-any
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRGREATER > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add(((ArrayList)temp.get(0)).get(0) + ".compareTo(" + ((ArrayList)temp.get(1)).get(0) + ") > 0");
+    return propVal;
+  }
+}
+
+ArrayList stringLegth() : //string length block (fix this to have consistency with other non-terminals
+{
+  ArrayList paramList; 
+  ArrayList propValObject = new ArrayList();}
+{
+  < STRLEN > paramList = listParams() setPropType()
+  {
+    propValObject.add(((ArrayList)paramList.get(0)).get(0) + ".length()");
+    return propValObject;
+  }
+}
+
+ArrayList stringLess() : //string-split-at-any
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRLESS > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add(((ArrayList)temp.get(0)).get(0) + ".compareTo(" + ((ArrayList)temp.get(1)).get(0) + ") < 0");
+    return propVal;
+  }
+}
+
+ArrayList stringReplaceAll() : //string replace all
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRREPLACEALL > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add(((ArrayList)temp.get(0)).get(0) + ".replaceAll(" + ((ArrayList)temp.get(1)).get(0) + "," + ((ArrayList)temp.get(2)).get(0) + ")");
+    return propVal;
+  }
+}
+
+
+ArrayList stringSegment() : //string-substring ta.get(0)+".substring("+ta.get(1)+"-1 , "+((ArrayList)temp.get(2)).get(0)+"+"+((ArrayList)temp.get(1)).get(0)+"-1)"
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRSUBSTRING > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add(((ArrayList)temp.get(0)).get(0) + ".substring(" + ((ArrayList)temp.get(1)).get(0) + "-1 ,"+((ArrayList)temp.get(2)).get(0)+"+"+((ArrayList)temp.get(1)).get(0)+"-1)");
+    return propVal;
+  }
+}
+
+ArrayList stringSplit() : //string-split
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRSPLIT > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add(((ArrayList)temp.get(0)).get(0) + ".split(" + ((ArrayList)temp.get(1)).get(0) + ")");
+    return propVal;
+  }
+}
+
+ArrayList stringSplitAtAny() : //string-split-at-any
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRSPLITANY > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add("YailList.makeList(" + ((ArrayList)temp.get(0)).get(0) + ".split(" + ((ArrayList)temp.get(1)).get(0) + ".replace(\"[\", \"\").replace(\"]\", \"\").replaceAll(\", \",\"|\")"+"))");
+    return propVal;
+  }
+}
+
+ArrayList stringSplitAtFirst() : //string-split-at-any
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRSPLITFIRST > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add("YailList.makeList("+((ArrayList)temp.get(0)).get(0)+".split(\""+((ArrayList)temp.get(1)).get(0)+"\", 2))");
+
+    return propVal;
+  }
+}
+
+ArrayList stringSplitFirstAny() : //string-split-at-any
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRSPLITFIRSTANY > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add("YailList.makeList("+((ArrayList)temp.get(0)).get(0)+".split("+((ArrayList)temp.get(1)).get(0)+".replace(\"[\", \"\").replace(\"]\", \"\").replaceAll(\", \",\"|\")"+"))");
+    return propVal;
+  }
+}
+
+ArrayList stringSplitSpaces() : //string-split-at-any
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRSPLITSPACES > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add("YailList.makeList("+((ArrayList)temp.get(0)).get(0)+".split(\"\\s+\"))");
+    return propVal;
+  }
+}
+
+ArrayList stringStartsAt() : //string-starts-at
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRSTARTAT > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add(((ArrayList)temp.get(0)).get(0)+".indexOf("+((ArrayList)temp.get(1)).get(0)+")+1");
+    return propVal;
+  }
+}
+
+ArrayList stringTrim() : //string to lower case
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRTRIM > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add(((ArrayList)temp.get(0)).get(0)+".trim()");
+    return propVal;
+  }
+}
+
+ArrayList stringToLower() : //string to lower case
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRTOLOWER > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add((((ArrayList)temp.get(0)).get(0)) + ".toLowerCase()");
+    return propVal;
+  }
+}
+
+ArrayList stringToUpper() : //string to upper case
+{
+  ArrayList temp = new ArrayList();
+  ArrayList propVal = new ArrayList();
+}
+{
+  < STRTOUPPER > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    propVal.add((((ArrayList)temp.get(0)).get(0)) + ".toUpperCase()");
+    return propVal;
+  }
+}
+
+void varDef() : //variable definition
+{JVar var; Token varName; ArrayList propValList;}
+{
+  varName = < COMPNAME >
+  {var = new JVar(varName.image);}
+  propValList = propVal(false)
+  {	
+     if( ((String) propValList.get(propValList.size()-1)).equals("YailList"))
+    {
+      var.setType((String) propValList.get(propValList.size()-1));
+    propValList.remove(propValList.size()-1);
+      var.setMembers(propValList);
+    }
+    else
+    {
+      var.setVal(propValList.get(0).toString());
+      var.setType(propValList.get(1).toString());
+      propValList.remove(1);
+    }
+    }
+  {variables.add(var);}
+}
+
+ArrayList variables() : //local variable blocks?
+{Token val; ArrayList propValList = new ArrayList();}
+{
+  < LEXVAL > val = < COMPNAME >
+  {propValList.add(val.image); return propValList;}
+}
+
+
+ArrayList compVal() : //lexical-value <COMPNAME> 
+{Token val; ArrayList propValList = new ArrayList();; }
+{
+  < LEXVAL > val = < COMPNAME >
+  {propValList.add(val.image); return propValList;}
+}
+
+void yailControlChoose() :
+{}
+{
+  ifBlock() < LPAREN > listStuff() < RPAREN > setPropType()
+}
+
+void yailControlCloseApp() :
+{ComponentCall componentCall = new ComponentCall("Form");
+  componentCall.setMethod("finishApplication");}
+{
+  < CLOSEAPP > < LPAREN > listStuff() < RPAREN > setPropType()
+  {codeBlock.addCall(componentCall);}
+}
+
+void yailControlCloseScreen() :
+{ ComponentCall componentCall = new ComponentCall("Form");
+  componentCall.setMethod("finishActivity");}
+{
+  < CLOSESCREEN > < LPAREN > listStuff() < RPAREN > setPropType()
+  {codeBlock.addCall(componentCall);}
+}
+
+void yailControlCloseScreenPlainText() :
+{ ComponentCall componentCall = new ComponentCall("Form");
+  componentCall.setMethod("finishActivityWithResult"); ArrayList paramList = null;}
+{
+  < CLOSESCREENPLAINTEXT > < LPAREN > paramList = listStuff() < RPAREN > setPropType()
+   {componentCall.setArgs(paramList); codeBlock.addCall(componentCall);}
+}
+
+void yailControlCloseScreenWithValue() :
+{ ComponentCall componentCall = new ComponentCall("Form");
+  componentCall.setMethod("finishActivityWithResult"); ArrayList paramList = null;}
+{
+  < CLOSESCREENWITHVALUE > < LPAREN > paramList = listStuff() < RPAREN > setPropType()
+  {componentCall.setArgs(paramList); codeBlock.addCall(componentCall);}
+}
+
+void yailControlGetPlainStartText() :
+{}
+{
+  < GETPLAINSTARTTEXT > < LPAREN > listStuff() < RPAREN > setPropType()
+}
+
+void yailControlGetStartValue() :
+{}
+{
+  < GETSTARTVALUE > <LPAREN > listStuff() < RPAREN > setPropType()
+}
+
+
+void yailControlOpenAnotherScreenWithValue() :
+{ ComponentCall componentCall = new ComponentCall("Form");
+  componentCall.setMethod("switchFormWithStartupValue"); ArrayList paramList = null;}
+{
+  < OPENANOTHERSCREENWITHVALUE > < LPAREN > paramList = listStuff() < RPAREN > setPropType()
+  {componentCall.setArgs(paramList); codeBlock.addCall(componentCall);}
+}
+
+void yailControlWhile() :
+{String operator; CodeBlock mainBlock = codeBlock; }
+{
+  {mainBlock.addCall(new ComponentCall("while", "")); codeBlock = new CodeBlock("while"); }
+  < WHILE > operator = ifTest() beginBody()
+  {mainBlock.addWhile(new WhileLoop(operator,codeBlock)); codeBlock = mainBlock;}
+}
+
+ArrayList yailGetListItem() : //yail-list-get-item
+{
+  ArrayList paramList = new ArrayList();
+  ArrayList propValObject;
+}
+{
+  < YAILGETITEM > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add(propValObject.get(0) + ".getItems().indexOf(" + propValObject.get(1) + ");");
+    return paramList;
+  }
+}
+
+
+ArrayList yailIsList() : //yail-list?
+{
+  ArrayList paramList = new ArrayList();
+  ArrayList propValObject;
+}
+{
+  < YAILISALIST > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add(propValObject.get(0) + ".getClass().getName().contentEquals(\"YailList\");");
+    return paramList;
+  }
+}
+
+ArrayList yailListAddToList() : //yail-list-add-to-list!
+{ArrayList paramList = new ArrayList();
+  ArrayList<ComponentCall > compArray = new ArrayList<ComponentCall >();
+  Token compName;}
+{
+  < YAILADDTOLIST > < LPAREN > paramList = listStuff() < RPAREN > setPropType()
+  {ComponentCall compCall = new ComponentCall (((ArrayList)paramList.get(0)).get(0).toString() + "IL");
+   compCall.addArgument(((ArrayList)paramList.get(1)).get(0).toString());
+     compCall.setMethod("add");
+     ComponentCall compCall1 = new ComponentCall(((ArrayList)paramList.get(0)).get(0).toString());
+     compCall1.setMethod("setItems");
+     compCall1.addArgument(((ArrayList)paramList.get(0)).get(0).toString()+ "IL");
+
+   codeBlock.addCall(compCall);
+   codeBlock.addCall(compCall1);
+   return paramList;}
+}
+
+ArrayList yailListRemove() :
+{ArrayList paramList = new ArrayList();
+  ArrayList<ComponentCall > compArray = new ArrayList<ComponentCall >();
+  Token compName;}
+{
+  
+  compName = < YAILLISTREMOVE > < LPAREN > paramList = listStuff() < RPAREN > setPropType()
+  
+  { ComponentCall compCall= new ComponentCall(((ArrayList)paramList.get(0)).get(0).toString() + "IL");
+    compCall.addArgument(((ArrayList)paramList.get(1)).get(0).toString());
+    compCall.setMethod("remove");
+    ComponentCall compCall1 = new ComponentCall(((ArrayList)paramList.get(0)).get(0).toString());
+    compCall1.setMethod("setItems");
+    compCall1.addArgument(((ArrayList)paramList.get(0)).get(0).toString()+ "IL");
+
+  codeBlock.addCall(compCall);
+  codeBlock.addCall(compCall1);
+    return paramList;}
+  
+}
+
+void yailListSetItem() : //yail-list-set-index!
+{ArrayList paramList = new ArrayList();
+ Token compName;}
+{
+  compName = < YAILLISTSETITEM > < LPAREN > paramList = listStuff() < RPAREN > setPropType()
+  {ComponentCall compCall = new ComponentCall(((ArrayList)paramList.get(0)).get(0).toString() + "IL");
+    compCall.addArgument(((ArrayList)paramList.get(1)).get(0).toString() + "-1");
+    compCall.addArgument(((ArrayList)paramList.get(2)).get(0).toString());
+    compCall.setMethod("set");
+    ComponentCall compCall1 = new ComponentCall(((ArrayList)paramList.get(0)).get(0).toString());
+    compCall1.setMethod("setItems");
+    compCall1.addArgument(((ArrayList)paramList.get(0)).get(0).toString() + "IL");
+    codeBlock.addCall(compCall);
+    codeBlock.addCall(compCall1);
+  }
+}
+
+void yailListInsert() : //yail-list-insert!
+{ArrayList paramList = new ArrayList();
+ ArrayList<ComponentCall > compArray = new ArrayList<ComponentCall >();
+ Token compName;}
+{
+  compName = < YAILLISTINSERT > < LPAREN > paramList = listStuff() < RPAREN > setPropType()
+  {ComponentCall compCall = new ComponentCall(((ArrayList)paramList.get(0)).get(0).toString() + "IL");
+    compCall.addArgument(((ArrayList)paramList.get(1)).get(0).toString() + "-1");
+    compCall.addArgument(((ArrayList)paramList.get(2)).get(0).toString());
+    compCall.setMethod("add");
+    ComponentCall compCall1 = new ComponentCall(((ArrayList)paramList.get(0)).get(0).toString());
+    compCall1.setMethod("setItems");
+    compCall1.addArgument(((ArrayList)paramList.get(0)).get(0).toString() + "IL");
+    codeBlock.addCall(compCall);
+    codeBlock.addCall(compCall1);
+  }
+}
+
+ArrayList yailListAppend() : //yail-list-append!
+{ArrayList paramList = new ArrayList();
+  ArrayList<ComponentCall > compArray = new ArrayList<ComponentCall >();
+  Token compName;}
+{
+  compName = < YAILLISTAPPEND > <LPAREN > paramList = listStuff() < RPAREN > setPropType()
+  {ComponentCall compCall= new ComponentCall(((ArrayList)paramList.get(0)).get(0).toString() + "IL");
+     compCall.addArgument(((ArrayList)paramList.get(1)).get(0).toString() + "IL");
+     compCall.setMethod("addAll");
+     ComponentCall compCall1 = new ComponentCall(((ArrayList)paramList.get(0)).get(0).toString());
+     compCall1.setMethod("setItems");
+     compCall1.addArgument(((ArrayList)paramList.get(0)).get(0).toString());
+
+   codeBlock.addCall(compCall);
+   codeBlock.addCall(compCall1);
+   return paramList;}
+}
+
+ArrayList yailListCopy() : //yail-list-copy
+{
+  ArrayList propValObject;
+}
+{
+  < YAILLISTCOPY > <LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    ComponentCall compCall= new ComponentCall("YailList.makeList");
+    compCall.setMethod("getItems");
+    compCall.addArgument(((ArrayList)propValObject.get(0)).toString());
+    codeBlock.addCall(compCall);
+
+    return propValObject;
+  }
+}
+
+ArrayList yailListFromCsvRow() : //yail-list-pick-random
+{
+  ArrayList paramList = new ArrayList();
+  String type = "YailList";
+  ArrayList propValObject;
+}
+{
+  < YAILLISTFROMCSVROW > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("CsvUtil.fromCsvRow(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    return paramList;
+  }
+}
+
+ArrayList yailListFromCsvTable() : //yail-list-pick-random
+{
+  ArrayList paramList = new ArrayList();
+  String type = "YailList";
+  ArrayList propValObject;
+}
+{
+  < YAILLISTFROMCSVTABLE> < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("CsvUtil.fromCsvTable(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    return paramList;
+  }
+}
+
+ArrayList yailListInd() : //yail-list-index
+{
+  ArrayList paramList = new ArrayList();
+  String type = "YailList";
+  ArrayList propValObject;
+}
+{
+  < YAILLISTINDEX > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add(propValObject.get(1) + ".getItems().indexOf(" + propValObject.get(0) + ");");
+    return (ArrayList)propValObject.get(0);
+  }
+}
+
+ArrayList yailListLength() : //yail-list-length
+{
+  ArrayList paramList = new ArrayList();
+  String type = "YailList";
+  ArrayList propValObject;
+}
+{
+  < YAILLISTLENGTH > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    /* test comment please ignore */
+    paramList.add(((ArrayList)propValObject.get(0)).size() - 1);
+    return paramList;
+  }
+}
+
+ArrayList yailListMember() : //yail-list-member
+{
+  ArrayList paramList = new ArrayList();
+  String type = "YailList";
+  ArrayList propValObject;
+}
+{
+  < YAILLISTMEMBER > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add(propValObject.get(1) + ".getItems().contains(" + propValObject.get(0) + ");");
+    return paramList;
+  }
+}
+
+ArrayList yailListPickRandom() : //yail-list-pick-random
+{
+  ArrayList paramList = new ArrayList();
+  String type = "YailList";
+  ArrayList propValObject;
+}
+{
+  < YAILLISTRANDOM > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    JVar jvar = new JVar("random");
+    jvar.setType("Random");
+    variables.add(jvar);
+
+    JVar jvar2 = new JVar("array");
+    jvar2.setType("ArrayList");
+    variables.add(jvar2);
+
+    for(int i = 0; i < ((ArrayList)propValObject.get(0)).size()-1; i++)
+    {
+      ComponentCall compCall= new ComponentCall("array");
+      compCall.setMethod("add");
+      compCall.addArgument(((ArrayList)propValObject.get(0)).get(i).toString());
+      codeBlock.addCall(compCall);
+    }
+
+    paramList.add("array.get(Math.Random().getInt(array.size())");
+    return paramList;
+  }
+}
+
+ArrayList yailListToCsvRow() : //yail-list-pick-random
+{
+  ArrayList paramList = new ArrayList();
+  String type = "YailList";
+  ArrayList propValObject;
+}
+{
+  < YAILLISTTOCSVROW > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("CsvUtil.toCsvRow(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    return paramList;
+  }
+}
+
+ArrayList yailListToCsvTable() : //yail-list-pick-random
+{
+  ArrayList paramList = new ArrayList();
+  String type = "YailList";
+  ArrayList propValObject;
+}
+{
+  < YAILLISTTOCSVTABLE > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("CsvUtil.toCsvTable(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    return paramList;
+  }
+}
+
+ArrayList yailMathAbs() : //absolute value
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < ABS > < LPAREN> temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.abs((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathAcos() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < ACOS > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.acos((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathAtan() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < ATAN > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.atan((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathAtan2() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < ATAN2 > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.atan2((float)" + ((ArrayList)temp.get(0)).get(0) + ",(float)" + ((ArrayList)temp.get(1)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathAsin() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < ASIN > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.asin((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathCeiling() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < CEILING > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.ceil((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathConvertToDeg():
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < CONVRADITODEG > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.toDegrees((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathConvertToRad() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < CONVDEGTORADI > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.toRadians((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathcos() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < COS > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.cos((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathExp() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < EXP > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.exp((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathExpt() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < EXPT > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.pow((float)" + ((ArrayList)temp.get(0)).get(0) + ", (float)" + ((ArrayList)temp.get(1)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathFloor() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < FLOOR > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.floor((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathFormatAsDec() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < FORMATASDEC > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+
+    paramList.add("new Double (String.format(\"%."+ ((ArrayList)temp.get(1)).get(0) +"g%n\", "+((ArrayList)temp.get(0)).get(0)+"))");
+    return paramList;
+  }
+}
+
+ArrayList yailMathIsANum() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < ISANUM > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("\"" + ((ArrayList)temp.get(0)).get(0) + "\"" + ".replaceAll(\"\\d+(.\\d+)*\", \"\").length()<1");
+    return paramList;
+  }
+}
+
+ArrayList yailMathLog() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < LOG > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.log((float)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathMax() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < MAX > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.max((float)" + ((ArrayList)temp.get(0)).get(0) + ", (float)" + ((ArrayList)temp.get(1)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathMin() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < MIN > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.min((float)" + ((ArrayList)temp.get(0)).get(0) + ", (float)" + ((ArrayList)temp.get(1)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathMod() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < MOD > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("(float)" + ((ArrayList)temp.get(0)).get(0) + " % " + "(float)" + ((ArrayList)temp.get(1)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathNegate() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < MINUS > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("(double)" + ((ArrayList)temp.get(0)).get(0) + "* -1");
+    return paramList;
+  }
+}
+
+ArrayList yailMathQuotient() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < QUOTIENT > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("(float)" + ((ArrayList)temp.get(0)).get(0) + " / " + "(float)" + ((ArrayList)temp.get(1)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathRandomSeed() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < RANDOMSETSEED > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    if(!hasRandom)
+    {
+     JVar jvar = new JVar("random");
+     jvar.setType("Random");
+     variables.add(jvar);
+     hasRandom = true;
+
+    }
+    paramList.add("random.setSeed((double)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathRemainder() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < REMAINDER > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.IEEEremainder((double)" + ((ArrayList)temp.get(0)).get(0) + ", (double)" + ((ArrayList)temp.get(1)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathRound() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < ROUND > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.round((double)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathsin() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < SIN > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.sin((double)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathSqrt() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < SQUAREROOT > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.sqrt((double)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+ArrayList yailMathtan() :
+{
+  ArrayList temp = new ArrayList();
+  ArrayList paramList = new ArrayList();
+}
+{
+  < TAN > < LPAREN > temp = listStuff() < RPAREN > setPropType()
+  {
+    paramList.add("Math.tan((double)" + ((ArrayList)temp.get(0)).get(0) + ")");
+    return paramList;
+  }
+}
+
+void yailControlOpenAnotherScreen() :
+{ ComponentCall componentCall = new ComponentCall("Form");
+  componentCall.setMethod("switchForm"); ArrayList paramList = null;}
+{
+  < OPENANOTHERSCREEN > < LPAREN > paramList = listStuff() < RPAREN > setPropType()
+  {componentCall.setArgs(paramList); codeBlock.addCall(componentCall);}
+}
+
+ArrayList yailPrim() : //possible yail primitives
+{ArrayList propValObject = new ArrayList();}
+{
+  propValObject = makeList() {return propValObject;}
+//| propValObject = yailPrimTypes(obj) {return propValObject;}
+| propValObject = yailListRemove() {return propValObject;}
+| propValObject = random() {return propValObject;}
+
+| propValObject = stringAppend() {return propValObject;}
+| propValObject = stringContains() {return propValObject;}
+| propValObject = stringEmpty() {return propValObject;}
+| propValObject = stringGreater() {return propValObject;}
+| propValObject = stringLegth() {return propValObject;}
+| propValObject = stringLess() {return propValObject;}
+| propValObject = stringToLower() {return propValObject;}
+| propValObject = stringReplaceAll() {return propValObject;}
+| propValObject = stringSegment() {return propValObject;}
+| propValObject = stringSplit() {return propValObject;}
+| propValObject = stringSplitAtAny() {return propValObject;}
+| propValObject = stringSplitAtFirst() {return propValObject;}
+| propValObject = stringSplitFirstAny() {return propValObject;}
+| propValObject = stringSplitSpaces() {return propValObject;}
+| propValObject = stringStartsAt() {return propValObject;}
+| propValObject = stringTrim() {return propValObject;}
+| propValObject = stringToUpper() {return propValObject;}
+| propValObject = yailGetListItem() {return propValObject;}
+| propValObject = yailIsList() {return propValObject;}
+| propValObject = yailListAddToList() {return propValObject;}
+| propValObject = yailListAppend() {return propValObject;}
+| propValObject = opBlock() {return propValObject;}
+| yailControlCloseApp() {return propValObject;}
+| yailControlChoose() {return propValObject;}
+| yailControlCloseScreen() {return propValObject;}
+| yailControlCloseScreenPlainText() {return propValObject;}
+| yailControlCloseScreenWithValue() {return propValObject;}
+/*
+| yailControlGetPlainStartText() {return propValObject;}
+| yailControlGetStartValue() {return propValObject;}
+*/
+| yailControlOpenAnotherScreen() {return propValObject;}
+| yailControlOpenAnotherScreenWithValue() {return propValObject;}
+| yailControlWhile() {return propValObject;}
+| propValObject = yailListCopy() {return propValObject;}
+| propValObject = yailListInd() {return propValObject;}
+| yailListInsert() {return propValObject;}
+| propValObject = yailListLength() {return propValObject;}
+| propValObject = yailListMember() {return propValObject;}
+| propValObject = yailListPickRandom() {return propValObject;}
+| yailListSetItem() {return propValObject;}
+| propValObject = yailListFromCsvRow() {return propValObject;}
+| propValObject = yailListFromCsvTable() {return propValObject;}
+| propValObject = yailListToCsvRow() {return propValObject;}
+| propValObject = yailListToCsvTable() {return propValObject;}
+| propValObject = yailMathAbs()  {return propValObject;}
+| propValObject = yailMathAtan() {return propValObject;}
+| propValObject = yailMathAtan2() {return propValObject;}
+| propValObject = yailMathAcos() {return propValObject;}
+| propValObject = yailMathAsin() {return propValObject;}
+| propValObject = yailMathCeiling() {return propValObject;}
+| propValObject = yailMathConvertToDeg() {return propValObject;}
+| propValObject = yailMathConvertToRad() {return propValObject;}
+| propValObject = yailMathcos() {return propValObject;}
+| propValObject = yailMathExp() {return propValObject;}
+| propValObject = yailMathExpt() {return propValObject;}
+| propValObject = yailMathFloor() {return propValObject;}
+| propValObject = yailMathFormatAsDec() {return propValObject;}
+| propValObject = yailMathIsANum() {return propValObject;}
+| propValObject = yailMathLog() {return propValObject;}
+| propValObject = yailMathMax() {return propValObject;}
+| propValObject = yailMathMin() {return propValObject;}
+| propValObject = yailMathMod() {return propValObject;}
+| propValObject = yailMathsin() {return propValObject;}
+| propValObject = yailMathQuotient() {return propValObject;}
+| propValObject = yailMathRandomSeed() {return propValObject;}
+| propValObject = yailMathRemainder() {return propValObject;}
+| propValObject = yailMathRound() {return propValObject;}
+| propValObject = yailMathSqrt() {return propValObject;}
+| propValObject = yailMathtan() {return propValObject;} 
+
+}
+
+ArrayList yailPrims() : //call to yail primitives
+{ArrayList propValObject = null;}
+{
+  < CALLPRIM > propValObject = yailPrim() primName()
+  {return propValObject;}
+| < YAILEQUAL > < LPAREN > compVal() < RPAREN > < LPAREN > compVal() < RPAREN >
+{return propValObject;}
+| propValObject = variables() {return propValObject;}
+}
+
+
+void buildTable() :
+{}
+{
+  {
+  ArrayList<String > values = new ArrayList();
+  values.add("Form");
+  values.add("switchForm");
+  lookUps.put("open-another-screen", values);
+  
+  values = new ArrayList();
+  values.add("argsIL");
+  values.add("remove");
+  values.add("args");
+  values.add("setItems");
+  lookUps.put("yail-list-remove-item!", values);
+  }
+}
+
+
+String generateCodeString(String yailType, String value) : //Create strings of code to return
+{}
+{
+  {
+    if(yailType.equals("abs")) return "Math.abs(" + value + ")";
+    return null;
+  }
+}
+
+HashMap<String, AppComponent > getComponents() :
+{}
+{
+  {return components;}
+}
+
+ArrayList<CodeBlock> getEvents() :
+{}
+{
+  {return events;}
+} 
+
+String getPackageName() :
+{}
+{
+  {return packageName;}
+}
+
+ArrayList<JVar> getVariablesArray() :
+{}
+{
+  {return variables;}
+}
+
+ArrayList<Method> getMethods() :
+{}
+{
+  {return methods;}
+}

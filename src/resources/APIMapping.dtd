@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : APIMapping.dtd
+    Created on : July 19, 2011, 12:06 PM
+    Author     : Joshua Swank
+-->
+
+<!ELEMENT API (Type*, Cast*, Entry*)>
+
+<!ELEMENT Type (EMPTY)>
+    <!ATTLIST Type name CDATA #REQUIRED>
+    <!ATTLIST Type default CDATA #REQUIRED>
+    <!ATTLIST Type literalGenusPattern CDATA #IMPLIED>
+    <!ATTLIST Type literalFormatString CDATA "%s">
+
+<!ELEMENT Cast (Operation|Function|Call|Value|UtilityFunction)?>
+    <!ATTLIST Cast target CDATA #REQUIRED>
+    <!ATTLIST Cast type CDATA #REQUIRED>
+
+<!ELEMENT Entry ((Parameter|Parameters)*, (Operation|Function|Call|Value|UtilityFunction))>
+    <!ATTLIST Entry genus CDATA #REQUIRED>
+    <!ATTLIST Entry type CDATA #IMPLIED>
+    <!ATTLIST Entry target CDATA "java.lang.Object">
+    <!ATTLIST Entry static (true|false) "false">
+    <!ATTLIST Entry nParams CDATA #IMPLIED>
+    <!ATTLIST Entry minParams CDATA #IMPLIED>
+    <!ATTLIST Entry maxParams CDATA #IMPLIED>
+    <!ATTLIST Entry simpleFunction CDATA #IMPLIED>
+
+<!ELEMENT Operation ((Operation|Function|Call|Value|UtilityFunction)?, (Parameter|Parameters)*)>
+    <!ATTLIST Operation style CDATA #IMPLIED>
+    <!ATTLIST Operation target CDATA "java.lang.Object">
+    <!ATTLIST Operation value CDATA #REQUIRED>
+    <!ATTLIST Operation nParams CDATA #IMPLIED>
+    <!ATTLIST Operation type CDATA "java.lang.Object">
+
+<!ELEMENT Function ((Operation|Function|Call|Value|UtilityFunction)?, (Parameter|Parameters)*)>
+    <!ATTLIST Function name CDATA #REQUIRED>
+    <!ATTLIST Function type CDATA "java.lang.Object">
+    <!ATTLIST Function static (true|false) "false">
+
+<!ELEMENT UtilityFunction ((Operation|Function|Call|Value|UtilityFunction)?, (Parameter|Parameters)*)>
+    <!ATTLIST UtilityFunction name CDATA #REQUIRED>
+    <!ATTLIST UtilityFunction nParams CDATA "-1">
+    <!ATTLIST UtilityFunction type CDATA "java.lang.Object">
+
+<!ELEMENT Call ((Operation|Function|Call|Value|UtilityFunction)?, (Parameter|Parameters)*)>
+    <!ATTLIST Call genus CDATA #REQUIRED>
+
+<!ELEMENT Value (EMPTY)>
+    <!ATTLIST Value index CDATA "-1">
+    <!ATTLIST Value value CDATA #IMPLIED>
+    <!ATTLIST Value type CDATA "java.lang.Object">
+
+<!ELEMENT Parameter (Operation|Function|Call|Value|UtilityFunction)>
+    <!ATTLIST Parameter type CDATA "java.lang.Object">
+    <!ATTLIST Parameter value CDATA #IMPLIED>
+    <!ATTLIST Parameter index CDATA #IMPLIED>
+
+<!ELEMENT Parameters (Operation|Function|Call|Value|UtilityFunction)+>
+    <!ATTLIST Parameters type CDATA "java.lang.Object">
+    <!ATTLIST Parameters start CDATA #IMPLIED>
+    <!ATTLIST Parameters end CDATA #IMPLIED>

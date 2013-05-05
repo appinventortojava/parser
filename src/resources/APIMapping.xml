@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE API SYSTEM "APIMapping.dtd">
+
+<!--
+    Document   : APIMapping.xml
+    Created on : July 19, 2011, 12:06 PM
+    Author     : Joshua Swank
+    Description:
+        Mappings from block genus to API
+-->
+
+<API>
+    <Type name="java.lang.String" default="&quot;&quot;" literalGenusPattern="text" literalFormatString="&quot;%s&quot;" />
+    <Type name="java.lang.Integer" default="0" />
+    <Type name="java.lang.Float" default="0.0f" literalGenusPattern="number" literalFormatString="%s" />
+    <Type name="java.lang.Long" default="0L" />
+    <Type name="java.lang.Boolean" default="false" literalGenusPattern="true|false" />
+    <Type name="java.util.List" default="null" />
+    <Type name="java.util.Random" default="null" />
+    <Type name="java.lang.Object" default="null" />
+
+    <Cast target="Object" type="String">
+        <Function name="toString" type="String" static="false" />
+    </Cast>
+
+    <Cast target="String" type="Integer">
+        <Function name="Integer.valueOf" type="Integer" static="true">
+            <Parameter>
+                <Value type="String" />
+            </Parameter>
+        </Function>
+    </Cast>
+
+    <!--Math operations-->
+    <Entry genus="yail-equal" static="false" target="Float" type="Boolean" nParams="1">
+        <Operation style="infix" target="Float" value="==" type="Boolean" nParams="1">
+            <Parameter index="0" type="Float" />
+        </Operation>
+    </Entry>
+
+    <Entry genus="yail-not-equal" static="false" target="Float" type="Boolean" nParams="1">
+        <Operation style="infix" target="Float" value="!=" type="Boolean" nParams="1">
+            <Parameter index="0" type="Float" />
+        </Operation>
+    </Entry>
+
+		<Entry genus="logical-not" static="value" target="Boolean" type="Boolean" nParams="0">
+				<Operation style="unary" target="Boolean" value="!" type="Boolean" nParams="0" />
+	</Entry>
+		
+    <Entry genus="greaterthan" static="false" target="Float" type="Float" nParams="1">
+        <Operation style="infix" target="Float" value=">" type="Float" nParams="1">
+            <Parameter index="0" type="Float" />
+        </Operation>
+    </Entry>
+    
+    <Entry genus="lessthan" static="false" target="Float" type="Float" nParams="1">
+        <Operation style="infix" target="Float" value=">" type="Float" nParams="1">
+            <Parameter index="0" type="Float" />
+        </Operation>
+    </Entry>
+
+    <Entry genus="number-negate" static="false" target="Float" type="Float" nParams="0">
+        <Operation style="unary" target="Float" value="-" type="Float" nParams="0" />
+    </Entry>
+
+    <Entry genus="number-plus" static="false" target="Float" type="Float" nParams="1">
+        <Operation style="infix" target="Float" value="+" type="Float" nParams="1">
+            <Parameter index="0" type="Float" />
+        </Operation>
+    </Entry>
+
+    <Entry genus="number-minus" static="false" target="Float" type="Float" nParams="1">
+        <Operation style="infix" target="Float" value="-" type="Float" nParams="1">
+            <Parameter index="0" type="Float" />
+        </Operation>
+    </Entry>
+
+    <Entry genus="number-times" static="false" target="Float" type="Float" nParams="1">
+        <Operation style="infix" target="Float" value="*" type="Float" nParams="1">
+            <Parameter index="0" type="Float" />
+        </Operation>
+    </Entry>
+
+    <Entry genus="number-divide" static="false" target="Float" type="Float" nParams="1">
+        <Operation style="infix" target="Float" value="/" type="Float" nParams="1">
+            <Parameter index="0" type="Float" />
+        </Operation>
+    </Entry>
+
+    <Entry genus="number-quotient" static="false" target="Float" type="Float" nParams="1">
+        <Call genus="number-divide">
+            <Parameter index="0" type="Float" />
+        </Call>
+    </Entry>
+
+    <Entry genus="number-modulo" static="false" target="Integer" type="Integer" nParams="1">
+        <Operation style="infix" target="Integer" value="%" type="Integer" nParams="1">
+            <Parameter index="0" type="Integer" />
+        </Operation>
+    </Entry>
+
+    <Entry genus="number-remainder" static="false" target="Float" type="Float" nParams="1">
+        <Call genus="number-modulo">
+            <Parameter index="0" type="Float" />
+        </Call>
+    </Entry>
+
+    <Entry genus="number-sqrt" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.sqrt">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-random-fraction" static="true" type="Float" nParams="0">
+        <Function type="Float" name="nextFloat" static="false">
+            <UtilityFunction name="getRandom" type="Random" nParams="0" />
+        </Function>
+    </Entry>
+
+    <Entry genus="number-random-integer" static="true" type="Integer" nParams="2">
+        <Parameters type="Integer" start="0" end="1" />
+        <Call genus="number-plus">
+            <Function type="Integer" name="nextInt" static="false">
+                <UtilityFunction name="getRandom" type="Random" nParams="0" />
+                <Parameter>
+                    <Operation style="unary" value="++" target="Float" type="Float">
+                        <Call genus="number-minus">
+                            <Value index="1" />
+                            <Parameter index="0" type="Float" />
+                        </Call>
+                    </Operation>
+                </Parameter>
+            </Function>
+            <Parameter index="0" type="Integer" />
+        </Call>
+    </Entry>
+
+    <Entry genus="number-min" static="true" type="Float" nParams="2" simpleFunction="java.lang.Math.min">
+        <Parameters type="Float" start="0" end="1" />
+    </Entry>
+
+    <Entry genus="number-min" static="true" type="Float" minParams="3">
+        <Parameters type="Float" start="0" />
+        <Call genus="number-min">
+            <Parameter index="0" type="Float" />
+            <Parameter>
+                <Call genus="number-min">
+                    <Parameters start="1" type="Float" />
+                </Call>
+            </Parameter>
+        </Call>
+    </Entry>
+
+    <Entry genus="number-max" static="true" type="Float" nParams="2" simpleFunction="java.lang.Math.max">
+        <Parameters type="Float" start="0" end="1" />
+    </Entry>
+
+    <Entry genus="number-max" static="true" type="Float" minParams="3">
+        <Parameters type="Float" start="0" />
+        <Call genus="number-max">
+            <Parameter index="0" type="Float" />
+            <Parameter>
+                <Call genus="number-max">
+                    <Parameters start="1" type="Float" />
+                </Call>
+            </Parameter>
+        </Call>
+    </Entry>
+
+    <Entry genus="number-abs" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.abs">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-round" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.round">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-floor" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.floor">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-ceiling" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.ceil">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-expt" static="true" type="Float" nParams="2" simpleFunction="java.lang.Math.pow">
+        <Parameters type="Float" start="0" end="1" />
+    </Entry>
+
+    <Entry genus="number-exp" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.exp">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-log" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.log">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-sin" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.sin">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-cos" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.cos">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-tan" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.tan">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-asin" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.asin">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-acos" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.acos">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-atan" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.atan">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-atan2" static="true" type="Float" nParams="2" simpleFunction="java.lang.Math.atan2">
+        <Parameter type="Float" start="0" end="1" />
+    </Entry>
+
+    <Entry genus="number-radians-to-degrees" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.toDegrees">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-degrees-to-radians" static="true" type="Float" nParams="1" simpleFunction="java.lang.Math.toRadians">
+        <Parameter type="Float" />
+    </Entry>
+
+    <Entry genus="number-random-set-seed" static="true" type="void" nParams="1">
+        <Parameter type="Long" />
+        <Function type="void" name="setSeed" static="false">
+            <UtilityFunction name="getRandom" type="Random" nParams="0" />
+            <Parameter index="0" type="Long" />
+        </Function>
+    </Entry>
+
+    <Entry genus="format-as-decimal" static="true" type="String" nParams="2">
+        <Parameter type="Float" />
+        <Parameter type="Integer" />
+        <Function type="String" name="String.format" static="true">
+            <Parameter>
+                <Operation style="infix" value="+" type="String" target="String">
+                        <Operation style="infix" value="+" type="String" target="String">
+                            <Value value="&quot;%.&quot;" type="String" />
+                            <Parameter index="1" type="String" />
+                        </Operation>
+                    <Parameter value="&quot;f&quot;" type="String" />
+                </Operation>
+            </Parameter>
+            <Parameter index="0" type="Float" />
+        </Function>
+    </Entry>
+
+    <Entry genus="number-is-number?" static="false" target="String" nParams="0" type="Boolean">
+        <Function type="Boolean" name="matches" static="false">
+            <Parameter value="&quot;\d*[.]?\d*&quot;" />
+        </Function>
+    </Entry>
+
+    <!--List operations-->
+    <Entry genus="make-list" static="true" type="List" nParams="1" simpleFunction="java.util.Arrays.asList">
+        <Parameter type="Object[]" />
+    </Entry>
+
+    <Entry genus="make-list" static="true" type="List" minParams="0">
+        <Parameters start="0" type="Object" />
+        <Call genus="make-list">
+            <Parameter>
+                <UtilityFunction name="join" type="Object[]">
+                    <Parameters start="0" type="Object" />
+                </UtilityFunction>
+            </Parameter>
+        </Call>
+    </Entry>
+
+    <Entry genus="get-list-item" target="List" static="false" type="Object" nParams="1">
+        <Parameter type="Integer" />
+        <Function type="Object" name="get" static="false">
+            <Parameter>
+                <Operation style="unary" target="Integer" value="--" type="Integer" nParams="0">
+                    <Value index="0" type="Integer" />
+                </Operation>
+            </Parameter>
+        </Function>
+    </Entry>
+
+    <Entry genus="list-length" target="List" static="false" type="Integer" nParams="0" simpleFunction="size" />
+
+    <Entry genus="list-member" static="true" type="Boolean" nParams="2">
+        <Parameter type="Object" />
+        <Parameter type="List" />
+        <Function type="Boolean" name="contains" static="false">
+            <Value index="1" type="List" />
+            <Parameter index="0" type="Object" />
+        </Function>
+    </Entry>
+
+    <Entry genus="list-index" static="true" type="Integer" nParams="2">
+        <Parameter type="Object" />
+        <Parameter type="List" />
+        <Operation style="unary" target="Integer" value="++" type="Integer" nParams="0">
+            <Function type="Integer" name="indexOf" static="false">
+                <Value index="1" type="List" />
+                <Parameter index="0" type="Object" />
+            </Function>
+        </Operation>
+    </Entry>
+
+    <Entry genus="replace-list-item" static="false" target="List" type="void" nParams="2">
+        <Parameter type="Integer" />
+        <Parameter type="Object" />
+        <Function type="void" name="set" static="false">
+            <Parameter>
+                <Operation style="unary" target="Integer" value="--" type="Integer" nParams="0">
+                    <Value index="0" type="Integer" />
+                </Operation>
+            </Parameter>
+            <Parameter index="1" type="Object" />
+        </Function>
+    </Entry>
+
+    <Entry genus="remove-list-item" static="false" target="List" type="void" nParams="1">
+        <Parameter type="Integer" />
+        <Function type="void" name="remove" static="false">
+            <Parameter>
+                <Operation style="unary" target="Integer" value="--" type="Integer" nParams="0">
+                    <Value index="0" type="Integer" />
+                </Operation>
+            </Parameter>
+        </Function>
+    </Entry>
+
+    <!--String operations-->
+    <Entry genus="string-split-at-first-of-any" target="String" static="false" nParams="1" type="List">
+        <Parameter type="List" />
+        <Function type="List" name="split" static="false">
+            <Parameter>
+                <UtilityFunction name="joinRegex" type="String">
+                    <Parameter index="0" type="List" />
+                </UtilityFunction>
+            </Parameter>
+            <Parameter value="2" type="Integer" />
+        </Function>
+    </Entry>
+
+    <Entry genus="string-split-at-any" target="String" static="false" nParams="1" type="List">
+        <Parameter type="List" />
+        <Function type="List" name="split" static="false">
+            <Parameter>
+                <UtilityFunction name="joinRegex" type="String">
+                    <Parameter index="0" type="List" />
+                </UtilityFunction>
+            </Parameter>
+        </Function>
+    </Entry>
+
+    <Entry genus="string-upcase" target="String" static="false" nParams="0" simpleFunction="toUpperCase" type="String" />
+    <Entry genus="string-downcase" target="String" static="false" nParams="0" simpleFunction="toLowerCase" type="String" />
+
+    <Entry genus="string-contains" target="String" static="false" nParams="1" simpleFunction="contains" type="Boolean">
+        <Parameter type="String" />
+    </Entry>
+
+    <Entry genus="string-append" static="false" target="String" type="String" nParams="1">
+        <Operation style="infix" target="String" value="+" type="String" nParams="1">
+            <Parameter index="0" type="String" />
+        </Operation>
+    </Entry>
+
+    <Entry genus="string-equal" target="String" static="false" nParams="1" simpleFunction="equals" type="Boolean">
+        <Parameter type="String" />
+    </Entry>
+
+    <Entry genus="string-trim" target="String" static="false" nParams="0" simpleFunction="trim" type="String" />
+
+    <Entry genus="string-replace-all" target="String" static="false" nParams="2" simpleFunction="replaceAll" type="String">
+        <Parameters type="String" start="0" end="1" />
+    </Entry>
+
+    <Entry genus="string-subtext" target="String" static="false" nParams="2" type="String">
+        <Parameters type="Integer" start="0" end="1" />
+        <Function type="String" name="substring" static="false">
+            <Parameter>
+                <Operation style="unary" target="Integer" value="--" type="Integer" nParams="0">
+                    <Value index="0" type="Integer" />
+                </Operation>
+            </Parameter>
+            <Parameter>
+                <Operation style="unary" target="Integer" value="--" type="Integer" nParams="0">
+                    <Call genus="number-plus">
+                        <Value index="0" type="Integer" />
+                        <Parameter index="1" type="Integer" />
+                    </Call>
+                </Operation>
+            </Parameter>
+        </Function>
+    </Entry>
+
+    <Entry genus="string-split" target="String" static="false" nParams="1" type="List">
+        <Parameter type="String" />
+        <Call genus="make-list">
+            <Parameter>
+                <Function type="String[]" name="split" static="false">
+                    <Parameter index="0" type="String" />
+                </Function>
+            </Parameter>
+        </Call>
+    </Entry>
+
+    <Entry genus="string-split-at-first" target="String" static="false" nParams="1" type="List">
+        <Parameter type="String" />
+        <Call genus="make-list">
+            <Parameter>
+                <Function name="split" type="String[]" static="false">
+                    <Parameter index="0" type="String" />
+                    <Parameter value="2" type="Integer" />
+                </Function>
+            </Parameter>
+        </Call>
+    </Entry>
+
+    <Entry genus="string-starts-at" target="String" static="false" nParams="1" type="Integer">
+        <Parameter type="String" />
+        <Operation style="unary" target="Integer" value="++" type="Integer" nParams="0">
+            <Operation style="surround" target="Integer" value="()" type="Integer" nParams="0">
+                <Function name="indexOf" type="Integer" static="false">
+                    <Parameter index="0" type="String" />
+                </Function>
+            </Operation>
+        </Operation>
+    </Entry>
+
+    <Entry genus="string-vappend" target="String" static="false" nParams="1" type="String">
+        <Parameter type="String" />
+        <Call genus="string-append">
+            <Parameter index="0" type="String" />
+        </Call>
+    </Entry>
+
+    <Entry genus="string-vappend" target="String" static="false" minParams="2" type="String">
+        <Parameters start="0" type="String" />
+        <Call genus="string-vappend">
+            <Call genus="string-append">
+                <Parameter index="0" type="Integer" />
+            </Call>
+            <Parameters start="1" type="Integer" />
+        </Call>
+    </Entry>
+
+    <Entry genus="string-split-at-spaces" target="String" static="false" nParams="0" type="List">
+        <Call genus="make-list">
+            <Parameter>
+                <Call genus="string-split">
+                    <Parameter value="&quot;\s&quot;" type="String" />
+                </Call>
+            </Parameter>
+        </Call>
+    </Entry>
+
+    <Entry genus="string-less-than" target="String" static="false" nParams="1" type="Boolean">
+        <Parameter type="String" />
+        <Operation style="surround" target="Boolean" value="()" type="Boolean" nParams="0">
+            <Operation style="infix" target="Integer" value="&lt;" type="Boolean" nParams="1">
+                <Function name="compareTo" type="Integer" static="false">
+                    <Parameter index="0" type="String" />
+                </Function>
+                <Parameter value="0" type="Integer" />
+            </Operation>
+        </Operation>
+    </Entry>
+
+    <Entry genus="string-greater-than" target="String" static="false" nParams="1" type="Boolean">
+        <Parameter type="String" />
+        <Operation style="surround" target="Boolean" value="()" type="Boolean" nParams="0">
+            <Operation style="infix" target="Integer" value="&gt;" type="Boolean" nParams="1">
+                <Function name="compareTo" type="Integer" static="false">
+                    <Parameter index="0" type="String" />
+                </Function>
+                <Parameter value="0" type="Integer" />
+            </Operation>
+        </Operation>
+    </Entry>
+</API>
