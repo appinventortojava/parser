@@ -36,13 +36,20 @@ public class JVar {
 	}
 	
 	public String getArrayType(){
-		String firstType = changeMembersType(members.get(0),"",0, "nocompares");
-		removeType(members);
-		arrayType = changeMembersType(members, "", 0, firstType);
-		if(arrayType.equals("")){
+		if(members.size() > 0)
+		{
+			String firstType = changeMembersType(members.get(0),"",0, "nocompares");
+			removeType(members);
+			arrayType = changeMembersType(members, "", 0, firstType);
+			if(arrayType.equals("")){
+				return "ArrayList";
+			}else{
+				return arrayType;	
+			}
+		}
+		else
+		{
 			return "ArrayList";
-		}else{
-			return arrayType;	
 		}
 	}
 	

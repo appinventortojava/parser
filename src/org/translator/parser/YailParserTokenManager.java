@@ -2396,7 +2396,7 @@ private int jjMoveNfa_0(int startState, int curPos)
                   jjCheckNAdd(5);
                   break;
                case 5:
-                  if (curChar != 70)
+                  if ((0x48L & l) == 0L)
                      break;
                   if (kind > 23)
                      kind = 23;

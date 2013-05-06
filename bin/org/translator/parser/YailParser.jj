@@ -84,6 +84,7 @@ TOKEN :
     "#x"
     (
       [ "F" ]
+    | [ "C" ]
     | [ "0" - "9" ]
     )* >
 | < DECIMALVAL :
@@ -499,14 +500,16 @@ void funcName() : //function name
   }
 }
 
-ArrayList getProp() : //call to get property
+ArrayList getProp(boolean flag) : //call to get property
 {ArrayList propValObject = new ArrayList(); Token compName; Token propName;}
 {
   //Might have to get rid of '
   < GETPROP > compName = < PROPNAME > propName = < PROPNAME >
   {String getProperty = compName.image.replace("'", "") + "." + propName.image.replace("'", "") + "()";
     propValObject.add(getProperty);
-    if(isParam) globalCall.addArgument(getProperty);
+    if(flag)
+    {      if(isParam) globalCall.addArgument(getProperty);
+  	}
   	return propValObject;
   }
 }
@@ -514,34 +517,37 @@ ArrayList getProp() : //call to get property
 Token getVar() : //call to get variable
 {Token compName;}
 {
-  (< GETVAR > | < GETCOMPONENT >) compName = < COMPNAME >  {
+  (< GETVAR > | < GETCOMPONENT > | < LEXVAL >) compName = < COMPNAME >  {
 	
     return compName;}
 }
 
 Token getVarProp() :
-{Token listName = null; ArrayList argsList;}
+{Token listName = null; ArrayList argsList; ArrayList propValObject;}
 {
-  < LPAREN > (listName = getVariables() | getProp()) < RPAREN >
+  < LPAREN > (listName = getVariables(true) | getProp(true) | propValObject = variables()) < RPAREN >
   (argsList = propVal(false) {globalCall.addArgument(argsList.get(0).toString());})*
   {return listName;}
 }
 
-Token getVariables() : //get-var
+Token getVariables(boolean flag) : //get-var
 {Token listName;}
 {
   < GETVAR > listName = < COMPNAME > /*add args */
   { //Might be a problem
-  	if(!isParam)
-  	{  
+   if(flag)
+   {
+  	 if(!isParam)
+  	 {  
   		ComponentCall compCall = new ComponentCall("");
   		compCall.setMethod(listName.image);
   		globalCall = compCall;
- 	}
- 	else
- 	{
- 	  globalCall.addArgument(listName.image);
- 	}
+ 	 }
+ 	 else
+ 	 {
+ 	    globalCall.addArgument(listName.image);
+ 	 }
+	}
     return listName;}
 }
 
@@ -591,7 +597,7 @@ void forRangeBlock() : //for each statements
 String ifTest() : //if statement test frame
 {Token test; ArrayList paramList = new ArrayList(); String operators;}
 {
-  < LPAREN > (paramList = yailPrims() | paramList = getProp() | operators = ifTests() {paramList.add(operators);})
+  < LPAREN > (paramList = yailPrims() | paramList = getProp(true) | operators = ifTests() {paramList.add(operators);})
   < RPAREN > {return paramList.get(0).toString();}
 | test = < TRUE > { return "true"; }
 | test = < RUNTIMEVAL > { return "false"; }
@@ -646,7 +652,7 @@ ArrayList listStuffS() : //list ...
 {ArrayList propValList = null;}
 {
   propValList = compVal() {return propValList;}
-| propValList = getProp() {return propValList;}
+| propValList = getProp(true) {return propValList;}
 | getVar() {return propValList;}
 | propValList = yailPrims() {return propValList;}
 }
@@ -719,14 +725,22 @@ ArrayList propVal(boolean inList) : //possible property values
 }
 
 ArrayList propValS(boolean inList) : //property values that start with "("
-{ArrayList propValObject = new ArrayList(); Token propertyValue;}
+{ArrayList propValObject = new ArrayList(); Token propertyValue; String propString;}
 {
   propValObject = callComponents() {return propValObject;}
-| propValObject = getProp() {return propValObject;}
+| propValObject = getProp(true) {return propValObject;}
 | propertyValue = getVar() {propValObject.add(propertyValue.image); if(!inList) propValObject.add("String"); return propValObject;}
 | ifBlock() {return null;}
-| propValObject = variables() {return propValObject;}
-| propValObject = yailPrims() {return propValObject;} 
+| propValObject = yailPrims() {return propValObject;}
+| (propString = getVarPropSpecial())+ {propValObject.add(propString); if(!inList) propValObject.add("String"); return propValObject;}
+}
+
+String getVarPropSpecial() :
+{Token listName = null; ArrayList argsList = new ArrayList(); ArrayList propValObject;}
+{
+  < LPAREN > (listName = getVariables(false) | getProp(false) | propValObject = variables()  {System.out.println(propValObject + "----");}) < RPAREN >
+  (argsList = propVal(false) )*
+  {return listName + "("+argsList.get(0).toString() + ")";}
 }
 
 ArrayList random() : //random integer
