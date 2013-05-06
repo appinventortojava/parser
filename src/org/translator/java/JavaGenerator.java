@@ -99,25 +99,6 @@ class JavaGenerator {
 		return codeSegment;
 	}
 	
-	//Handles lists in lists
-	private void convertList(ArrayList list, FunctionSegment defineFunction, String listName, Value[] params, String mainList, ClassSegment classSegment){
-		for(int i = 0; i <  list.size() - 1; i++)
-		{
-			if(((ArrayList) list.get(i)).size() == 1){
-				defineFunction.add(new ValueStatement(new Value(listName + ".add(" + ((ArrayList) list.get(i)).get(0).toString() + ")")));
-			}
-			else{
-				classSegment.add(declaration("ArrayList",listName + i));
-				defineFunction.add(new AssignmentStatement(listName + i,
-						new ConstructorCall(
-								TranslatorConstants.COMPONENT_PREFIX.concat("ArrayList"), params)));
-				convertList((ArrayList) list.get(i), defineFunction, listName+ i, params, mainList, classSegment);
-				defineFunction.add(new ValueStatement(new Value(listName +".add(" + listName+i+ ")")));
-				
-			}
-
-		}
-	}
 	
 	private void parseList(ArrayList list, FunctionSegment defineFunction, 
 							String listName, Value[] params, ClassSegment classSegment){
