@@ -267,7 +267,10 @@ ArrayList callComponents() : //call-component-methods
   < CALLCOMP > propName = < PROPNAME > callName = < PROPNAME > paramList = listParams() setPropType()
   {ComponentCall compCall = new ComponentCall(propName.image.replace("'",""));
    compCall.setMethod(callName.image.replace("'",""));
-   if (paramList.size() > 1) compCall.setArgs(paramList);
+   if (paramList.size() > 1)   {
+     //hacky way to get rid of "String"
+     System.out.println(paramList);      compCall.setArgs(paramList);
+   }
    else if(paramList.size() == 1) compCall.addArgument(((ArrayList)paramList.get(0)).get(0).toString());
 
    if(!isSubEvent)codeBlock.addCall(compCall);
@@ -705,7 +708,7 @@ void program() : //program starts here
 ArrayList propVal(boolean inList) : //possible property values
 {Token propertyValue; ArrayList propValList = new ArrayList(); ArrayList tempList;}
 {
- propertyValue = < ANYTEXT > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
+  propertyValue = < ANYTEXT > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
 | propertyValue = < COLORVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
 | propertyValue = < DECIMALVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("float"); return propValList;}
 | propertyValue = < TRUE > {propValList.add("true"); if(!inList) propValList.add("boolean"); return propValList;}

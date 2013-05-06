@@ -88,7 +88,12 @@ public class YailParser implements YailParserConstants {
     setPropType();
    ComponentCall compCall = new ComponentCall(propName.image.replace("'",""));
    compCall.setMethod(callName.image.replace("'",""));
-   if (paramList.size() > 1) compCall.setArgs(paramList);
+   if (paramList.size() > 1)
+   {
+     //hacky way to get rid of "String"
+     System.out.println(paramList);
+      compCall.setArgs(paramList);
+   }
    else if(paramList.size() == 1) compCall.addArgument(((ArrayList)paramList.get(0)).get(0).toString());
 
    if(!isSubEvent)codeBlock.addCall(compCall);
@@ -986,7 +991,7 @@ public class YailParser implements YailParserConstants {
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ANYTEXT:
       propertyValue = jj_consume_token(ANYTEXT);
-                              propValList.add(propertyValue.image); if(!inList) propValList.add("String"); {if (true) return propValList;}
+                               propValList.add(propertyValue.image); if(!inList) propValList.add("String"); {if (true) return propValList;}
       break;
     case COLORVAL:
       propertyValue = jj_consume_token(COLORVAL);
