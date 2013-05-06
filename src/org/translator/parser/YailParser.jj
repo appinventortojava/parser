@@ -268,8 +268,9 @@ ArrayList callComponents() : //call-component-methods
   {ComponentCall compCall = new ComponentCall(propName.image.replace("'",""));
    compCall.setMethod(callName.image.replace("'",""));
    if (paramList.size() > 1)   {
-     //hacky way to get rid of "String"
-     System.out.println(paramList);      compCall.setArgs(paramList);
+     for(int i = 0; i < paramList.size(); i++)
+     { 
+      compCall.addArgument(((ArrayList)paramList.get(i)).get(0).toString());     }
    }
    else if(paramList.size() == 1) compCall.addArgument(((ArrayList)paramList.get(0)).get(0).toString());
 
@@ -534,7 +535,7 @@ Token getVariables() : //get-var
   	if(!isParam)
   	{  
   		ComponentCall compCall = new ComponentCall("");
-  		compCall.setMethod(listName.image + "test");
+  		compCall.setMethod(listName.image);
   		globalCall = compCall;
  	}
  	else
@@ -684,7 +685,7 @@ String operation() : //operators
   < DIVIDE > {return "/";} 
 | operator = < PLUS > {return operator.image;}
 | operator = < MINUS > {return operator.image;}
-| operator = < YAILEQUAL > {return "=";}
+| operator = < YAILEQUAL > {return "==";}
 | operator = < MULTIPLY > {return operator.image;}
 | operator = < LESS > (equal = < EQUAL >)? {if(equal != null) return operator.image+equal.image; else return operator.image;}
 | operator = < GREATER > (equal = < EQUAL >)? {if(equal != null) return operator.image+equal.image; else return operator.image;}

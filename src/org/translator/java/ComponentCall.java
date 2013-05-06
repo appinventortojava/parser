@@ -55,8 +55,7 @@ public class ComponentCall {
 	public void setArgs(ArrayList args){
 		for (ArrayList<String> arg : (ArrayList<ArrayList>)args)
 			for(String s : arg)
-			{	//To get rid of "String" at the end of lists
-				if(!s.equals("String"))
+			{
 					arguments.add(s);
 			}
 		//arguments=args;

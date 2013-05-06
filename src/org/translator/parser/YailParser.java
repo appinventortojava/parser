@@ -90,9 +90,10 @@ public class YailParser implements YailParserConstants {
    compCall.setMethod(callName.image.replace("'",""));
    if (paramList.size() > 1)
    {
-     //hacky way to get rid of "String"
-     System.out.println(paramList);
-      compCall.setArgs(paramList);
+     for(int i = 0; i < paramList.size(); i++)
+     {
+      compCall.addArgument(((ArrayList)paramList.get(i)).get(0).toString());
+     }
    }
    else if(paramList.size() == 1) compCall.addArgument(((ArrayList)paramList.get(0)).get(0).toString());
 
@@ -542,7 +543,7 @@ public class YailParser implements YailParserConstants {
         if(!isParam)
         {
                 ComponentCall compCall = new ComponentCall("");
-                compCall.setMethod(listName.image + "test");
+                compCall.setMethod(listName.image);
                 globalCall = compCall;
         }
         else
@@ -928,7 +929,7 @@ public class YailParser implements YailParserConstants {
       break;
     case YAILEQUAL:
       operator = jj_consume_token(YAILEQUAL);
-                            {if (true) return "=";}
+                            {if (true) return "==";}
       break;
     case MULTIPLY:
       operator = jj_consume_token(MULTIPLY);
