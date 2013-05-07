@@ -79,6 +79,7 @@ public class YailParser implements YailParserConstants {
     jj_consume_token(RPAREN);
   }
 
+//Have flag that checks if nested
   final public ArrayList callComponents() throws ParseException {
  Token propName; Token callName; ArrayList paramList = new ArrayList(); ArrayList propValObject = new ArrayList();
     jj_consume_token(CALLCOMP);
@@ -448,6 +449,7 @@ public class YailParser implements YailParserConstants {
     label_3:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case LIST:
       case COMPNAME:
         ;
         break;
@@ -455,8 +457,19 @@ public class YailParser implements YailParserConstants {
         jj_la1[12] = jj_gen;
         break label_3;
       }
-      arg = jj_consume_token(COMPNAME);
-                                                           argList.add(arg.image);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case COMPNAME:
+        arg = jj_consume_token(COMPNAME);
+        break;
+      case LIST:
+        arg = jj_consume_token(LIST);
+        break;
+      default:
+        jj_la1[13] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+                                                                              argList.add(arg.image);
     }
     jj_consume_token(RPAREN);
    codeBlock = new CodeBlock("method");
@@ -492,7 +505,7 @@ public class YailParser implements YailParserConstants {
       jj_consume_token(LEXVAL);
       break;
     default:
-      jj_la1[13] = jj_gen;
+      jj_la1[14] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -515,7 +528,7 @@ public class YailParser implements YailParserConstants {
       propValObject = variables();
       break;
     default:
-      jj_la1[14] = jj_gen;
+      jj_la1[15] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -535,7 +548,7 @@ public class YailParser implements YailParserConstants {
         ;
         break;
       default:
-        jj_la1[15] = jj_gen;
+        jj_la1[16] = jj_gen;
         break label_4;
       }
       argsList = propVal(false);
@@ -587,7 +600,7 @@ public class YailParser implements YailParserConstants {
      ifStat.setElseNoCon(codeBlock);
       break;
     default:
-      jj_la1[16] = jj_gen;
+      jj_la1[17] = jj_gen;
       ;
     }
      mainBlock.addIf(ifStat);
@@ -639,7 +652,7 @@ public class YailParser implements YailParserConstants {
                                                                                            paramList.add(operators);
         break;
       default:
-        jj_la1[17] = jj_gen;
+        jj_la1[18] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -655,7 +668,7 @@ public class YailParser implements YailParserConstants {
                           {if (true) return "false";}
       break;
     default:
-      jj_la1[18] = jj_gen;
+      jj_la1[19] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -674,7 +687,7 @@ public class YailParser implements YailParserConstants {
                                               operator = "||";
       break;
     default:
-      jj_la1[19] = jj_gen;
+      jj_la1[20] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -691,7 +704,7 @@ public class YailParser implements YailParserConstants {
       jj_consume_token(RUNTIMEVAL);
       break;
     default:
-      jj_la1[20] = jj_gen;
+      jj_la1[21] = jj_gen;
       ;
     }
   }
@@ -707,7 +720,7 @@ public class YailParser implements YailParserConstants {
       jj_consume_token(LISTFORRUNTIME);
       break;
     default:
-      jj_la1[21] = jj_gen;
+      jj_la1[22] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -726,7 +739,7 @@ public class YailParser implements YailParserConstants {
         ;
         break;
       default:
-        jj_la1[22] = jj_gen;
+        jj_la1[23] = jj_gen;
         break label_5;
       }
       propValObject = propVal(false);
@@ -747,7 +760,7 @@ public class YailParser implements YailParserConstants {
       jj_consume_token(LISTFORRUNTIME);
       break;
     default:
-      jj_la1[23] = jj_gen;
+      jj_la1[24] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -766,7 +779,7 @@ public class YailParser implements YailParserConstants {
         ;
         break;
       default:
-        jj_la1[24] = jj_gen;
+        jj_la1[25] = jj_gen;
         break label_6;
       }
       propValObject = propVal(true);
@@ -778,7 +791,7 @@ public class YailParser implements YailParserConstants {
                                    paramList.add(propValObject);
       break;
     default:
-      jj_la1[25] = jj_gen;
+      jj_la1[26] = jj_gen;
       ;
     }
     {if (true) return paramList;}
@@ -803,13 +816,13 @@ public class YailParser implements YailParserConstants {
         jj_consume_token(DECIMALVAL);
         break;
       default:
-        jj_la1[26] = jj_gen;
+        jj_la1[27] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[27] = jj_gen;
+      jj_la1[28] = jj_gen;
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -817,7 +830,7 @@ public class YailParser implements YailParserConstants {
       jj_consume_token(ANYTEXT);
       break;
     default:
-      jj_la1[28] = jj_gen;
+      jj_la1[29] = jj_gen;
       ;
     }
      {if (true) return propValList;}
@@ -846,7 +859,7 @@ public class YailParser implements YailParserConstants {
                              {if (true) return propValList;}
       break;
     default:
-      jj_la1[29] = jj_gen;
+      jj_la1[30] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -878,7 +891,7 @@ public class YailParser implements YailParserConstants {
           ;
           break;
         default:
-          jj_la1[30] = jj_gen;
+          jj_la1[31] = jj_gen;
           break label_7;
         }
         propValObject = propVal(true);
@@ -886,7 +899,7 @@ public class YailParser implements YailParserConstants {
       }
       break;
     default:
-      jj_la1[31] = jj_gen;
+      jj_la1[32] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -900,7 +913,7 @@ public class YailParser implements YailParserConstants {
         ;
         break;
       default:
-        jj_la1[32] = jj_gen;
+        jj_la1[33] = jj_gen;
         break label_8;
       }
       jj_consume_token(COMPNAME);
@@ -958,7 +971,7 @@ public class YailParser implements YailParserConstants {
         equal = jj_consume_token(EQUAL);
         break;
       default:
-        jj_la1[33] = jj_gen;
+        jj_la1[34] = jj_gen;
         ;
       }
                                             if(equal != null) {if (true) return operator.image+equal.image;} else {if (true) return operator.image;}
@@ -970,13 +983,13 @@ public class YailParser implements YailParserConstants {
         equal = jj_consume_token(EQUAL);
         break;
       default:
-        jj_la1[34] = jj_gen;
+        jj_la1[35] = jj_gen;
         ;
       }
                                                if(equal != null) {if (true) return operator.image+equal.image;} else {if (true) return operator.image;}
       break;
     default:
-      jj_la1[35] = jj_gen;
+      jj_la1[36] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -990,7 +1003,7 @@ public class YailParser implements YailParserConstants {
       functionName = jj_consume_token(ANYTEXT);
       break;
     default:
-      jj_la1[36] = jj_gen;
+      jj_la1[37] = jj_gen;
 
     }
   }
@@ -1039,7 +1052,7 @@ public class YailParser implements YailParserConstants {
                                                      {if (true) return tempList;}
       break;
     default:
-      jj_la1[37] = jj_gen;
+      jj_la1[38] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1081,14 +1094,14 @@ public class YailParser implements YailParserConstants {
           ;
           break;
         default:
-          jj_la1[38] = jj_gen;
+          jj_la1[39] = jj_gen;
           break label_9;
         }
       }
                                        propValObject.add(propString); if(!inList) propValObject.add("String"); {if (true) return propValObject;}
       break;
     default:
-      jj_la1[39] = jj_gen;
+      jj_la1[40] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1107,10 +1120,9 @@ public class YailParser implements YailParserConstants {
       break;
     case LEXVAL:
       propValObject = variables();
-   System.out.println(propValObject + "----");
       break;
     default:
-      jj_la1[40] = jj_gen;
+      jj_la1[41] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1130,7 +1142,7 @@ public class YailParser implements YailParserConstants {
         ;
         break;
       default:
-        jj_la1[41] = jj_gen;
+        jj_la1[42] = jj_gen;
         break label_10;
       }
       argsList = propVal(false);
@@ -1176,7 +1188,7 @@ public class YailParser implements YailParserConstants {
                 {if (true) return false;}
       break;
     default:
-      jj_la1[42] = jj_gen;
+      jj_la1[43] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1226,7 +1238,7 @@ public class YailParser implements YailParserConstants {
         ;
         break;
       default:
-        jj_la1[43] = jj_gen;
+        jj_la1[44] = jj_gen;
         break label_11;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1237,7 +1249,7 @@ public class YailParser implements YailParserConstants {
         jj_consume_token(LIST);
         break;
       default:
-        jj_la1[44] = jj_gen;
+        jj_la1[45] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1515,7 +1527,18 @@ public class YailParser implements YailParserConstants {
   final public ArrayList variables() throws ParseException {
  Token val; ArrayList propValList = new ArrayList();
     jj_consume_token(LEXVAL);
-    val = jj_consume_token(COMPNAME);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case COMPNAME:
+      val = jj_consume_token(COMPNAME);
+      break;
+    case LIST:
+      val = jj_consume_token(LIST);
+      break;
+    default:
+      jj_la1[46] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
    propValList.add(val.image); {if (true) return propValList;}
     throw new Error("Missing return statement in function");
   }
@@ -2536,7 +2559,7 @@ public class YailParser implements YailParserConstants {
                                  {if (true) return propValObject;}
       break;
     default:
-      jj_la1[45] = jj_gen;
+      jj_la1[47] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2567,7 +2590,7 @@ public class YailParser implements YailParserConstants {
                                {if (true) return propValObject;}
       break;
     default:
-      jj_la1[46] = jj_gen;
+      jj_la1[48] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2628,7 +2651,7 @@ public class YailParser implements YailParserConstants {
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[47];
+  final private int[] jj_la1 = new int[49];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -2640,16 +2663,16 @@ public class YailParser implements YailParserConstants {
       jj_la1_init_3();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x0,0x20000100,0x0,0x0,0x0,0x0,0x0,0x0,0x1830000,0x0,0x1830000,0x0,0x0,0x0,0x0,0x1800000,0x0,0x26000,0x0,0x6000,0x0,0x0,0x1800000,0x0,0x1800000,0x0,0x1000000,0x1000000,0x0,0x20000,0x1800000,0x0,0x0,0x0,0x0,0x80000000,0x0,0x1800000,0x0,0x30000,0x0,0x1800000,0x0,0x0,0x0,0x8e7c1cc0,0x20000,};
+      jj_la1_0 = new int[] {0x0,0x20000100,0x0,0x0,0x0,0x0,0x0,0x0,0x1830000,0x0,0x1830000,0x0,0x0,0x0,0x0,0x0,0x1800000,0x0,0x26000,0x0,0x6000,0x0,0x0,0x1800000,0x0,0x1800000,0x0,0x1000000,0x1000000,0x0,0x20000,0x1800000,0x0,0x0,0x0,0x0,0x80000000,0x0,0x1800000,0x0,0x30000,0x0,0x1800000,0x0,0x0,0x0,0x0,0x8e7c1cc0,0x20000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x20001,0x1000000,0x0,0x1000000,0x1000000,0x1000000,0x1000000,0x1116120,0x1000000,0x1116120,0x0,0x0,0x106000,0x102400,0x1106000,0x1000000,0x100400,0x1000000,0x0,0x0,0x600000,0x1106000,0x600000,0x1106000,0x1000000,0x1000000,0x1000000,0x0,0x106400,0x1106000,0x600000,0x0,0x8,0x8,0xa0088000,0x0,0x1106000,0x1000000,0x1116400,0x102400,0x1106000,0x0,0x200000,0x200000,0xfe0d8056,0x100000,};
+      jj_la1_1 = new int[] {0x0,0x20001,0x1000000,0x0,0x1000000,0x1000000,0x1000000,0x1000000,0x1116120,0x1000000,0x1116120,0x0,0x200000,0x200000,0x106000,0x102400,0x1106000,0x1000000,0x100400,0x1000000,0x0,0x0,0x600000,0x1106000,0x600000,0x1106000,0x1000000,0x1000000,0x1000000,0x0,0x106400,0x1106000,0x600000,0x0,0x8,0x8,0xa0088000,0x0,0x1106000,0x1000000,0x1116400,0x102400,0x1106000,0x0,0x200000,0x200000,0x200000,0xfe0d8056,0x100000,};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x78000,0x0,0x78000,0x0,0x0,0x0,0x0,0x8000,0x0,0x0,0x8000,0x0,0x8000,0x0,0x8000,0x0,0x8000,0x0,0x0,0x0,0x0,0x0,0x8000,0x0,0x0,0x0,0x0,0x8,0x0,0x8000,0x0,0x0,0x0,0x8000,0x300,0x0,0x0,0xfff82f8b,0x0,};
+      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x78000,0x0,0x78000,0x0,0x0,0x0,0x0,0x0,0x8000,0x0,0x0,0x8000,0x0,0x8000,0x0,0x8000,0x0,0x8000,0x0,0x0,0x0,0x0,0x0,0x8000,0x0,0x0,0x0,0x0,0x8,0x0,0x8000,0x0,0x0,0x0,0x8000,0x300,0x0,0x0,0x0,0xfff82f8b,0x0,};
    }
    private static void jj_la1_init_3() {
-      jj_la1_3 = new int[] {0x10000000,0x0,0x0,0x80,0x0,0x0,0x8000000,0x0,0x10000b00,0x0,0x10000b00,0x8000000,0x8000000,0x0,0x0,0x10000100,0x0,0x800,0x100,0x0,0x0,0x0,0x10000100,0x0,0x10000100,0x0,0x0,0x0,0x10000000,0x800,0x10000100,0x0,0x8000000,0x0,0x0,0x800,0x10000000,0x10000100,0x0,0x800,0x0,0x10000100,0x0,0x8000000,0x8000000,0x7fffe7f,0x800,};
+      jj_la1_3 = new int[] {0x10000000,0x0,0x0,0x80,0x0,0x0,0x8000000,0x0,0x10000b00,0x0,0x10000b00,0x8000000,0x8000000,0x8000000,0x0,0x0,0x10000100,0x0,0x800,0x100,0x0,0x0,0x0,0x10000100,0x0,0x10000100,0x0,0x0,0x0,0x10000000,0x800,0x10000100,0x0,0x8000000,0x0,0x0,0x800,0x10000000,0x10000100,0x0,0x800,0x0,0x10000100,0x0,0x8000000,0x8000000,0x8000000,0x7fffe7f,0x800,};
    }
 
   /** Constructor with InputStream. */
@@ -2663,7 +2686,7 @@ public class YailParser implements YailParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 49; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -2677,7 +2700,7 @@ public class YailParser implements YailParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 49; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -2687,7 +2710,7 @@ public class YailParser implements YailParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 49; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -2697,7 +2720,7 @@ public class YailParser implements YailParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 49; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -2706,7 +2729,7 @@ public class YailParser implements YailParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 49; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -2715,7 +2738,7 @@ public class YailParser implements YailParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 47; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 49; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -2771,7 +2794,7 @@ public class YailParser implements YailParserConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 47; i++) {
+    for (int i = 0; i < 49; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

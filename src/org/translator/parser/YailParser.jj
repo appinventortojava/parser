@@ -262,6 +262,7 @@ void beginBody() : //conditional bodies
   < LPAREN > < BEGIN > eventBody() (< ANYTEXT >)?  < RPAREN > 
 }
 
+//Have flag that checks if nested
 ArrayList callComponents() : //call-component-methods
 {Token propName; Token callName; ArrayList paramList = new ArrayList(); ArrayList propValObject = new ArrayList();}
 {
@@ -492,7 +493,7 @@ void funcDef() : //function definition
 void funcName() : //function name
 {Token compName; Token arg; ArrayList<String > argList = new ArrayList<String >();}
 {
-  < LPAREN > compName = < COMPNAME >  (arg = < COMPNAME > {argList.add(arg.image);})* < RPAREN >
+  < LPAREN > compName = < COMPNAME >   ((arg = < COMPNAME > | arg = < LIST >){argList.add(arg.image);})* < RPAREN >
   {
    codeBlock = new CodeBlock("method");
    codeBlock.setB1(true);
@@ -738,7 +739,7 @@ ArrayList propValS(boolean inList) : //property values that start with "("
 String getVarPropSpecial() :
 {Token listName = null; ArrayList argsList = new ArrayList(); ArrayList propValObject;}
 {
-  < LPAREN > (listName = getVariables(false) | getProp(false) | propValObject = variables()  {System.out.println(propValObject + "----");}) < RPAREN >
+  < LPAREN > (listName = getVariables(false) | getProp(false) | propValObject = variables() ) < RPAREN >
   (argsList = propVal(false) )*
   {return listName + "("+argsList.get(0).toString() + ")";}
 }
@@ -1095,7 +1096,7 @@ void varDef() : //variable definition
 ArrayList variables() : //local variable blocks?
 {Token val; ArrayList propValList = new ArrayList();}
 {
-  < LEXVAL > val = < COMPNAME >
+  < LEXVAL > (val = < COMPNAME > | val = < LIST >)
   {propValList.add(val.image); return propValList;}
 }
 
