@@ -1965,7 +1965,7 @@ public class YailParser implements YailParserConstants {
     propValObject = listStuff();
     jj_consume_token(RPAREN);
     setPropType();
-    paramList.add(propValObject.get(0) + ".getItems().indexOf(" + propValObject.get(1) + ");");
+    paramList.add(((ArrayList)propValObject.get(0)).get(0) + ".getItems().indexOf(" + ((ArrayList)propValObject.get(1)).get(0) + " - 1)");
     {if (true) return paramList;}
     throw new Error("Missing return statement in function");
   }
@@ -1981,7 +1981,7 @@ public class YailParser implements YailParserConstants {
     propValObject = listStuff();
     jj_consume_token(RPAREN);
     setPropType();
-    paramList.add(propValObject.get(0) + ".getClass().getName().contentEquals(\u005c"YailList\u005c");");
+    paramList.add(((ArrayList)propValObject.get(0)).get(0) + ".getClass().getName().contentEquals(\u005c"YailList\u005c")");
     {if (true) return paramList;}
     throw new Error("Missing return statement in function");
   }
@@ -2134,7 +2134,7 @@ public class YailParser implements YailParserConstants {
     propValObject = listStuff();
     jj_consume_token(RPAREN);
     setPropType();
-    paramList.add("CsvUtil.fromCsvRow(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    paramList.add("CsvUtil.fromCsvRow(YailList.makeList(" + ((ArrayList)propValObject.get(0)).get(0)+ ".getItems()))");
     {if (true) return paramList;}
     throw new Error("Missing return statement in function");
   }
@@ -2151,7 +2151,7 @@ public class YailParser implements YailParserConstants {
     propValObject = listStuff();
     jj_consume_token(RPAREN);
     setPropType();
-    paramList.add("CsvUtil.fromCsvTable(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    paramList.add("CsvUtil.fromCsvTable(YailList.makeList(" + ((ArrayList)propValObject.get(0)).get(0) + ".getItems()))");
     {if (true) return paramList;}
     throw new Error("Missing return statement in function");
   }
@@ -2168,7 +2168,7 @@ public class YailParser implements YailParserConstants {
     propValObject = listStuff();
     jj_consume_token(RPAREN);
     setPropType();
-    paramList.add(propValObject.get(1) + ".getItems().indexOf(" + propValObject.get(0) + ");");
+    paramList.add(((ArrayList)propValObject.get(1)).get(0) + ".getItems().indexOf(" + ((ArrayList)propValObject.get(0)).get(0)+ ")");
     {if (true) return (ArrayList)propValObject.get(0);}
     throw new Error("Missing return statement in function");
   }
@@ -2203,7 +2203,7 @@ public class YailParser implements YailParserConstants {
     propValObject = listStuff();
     jj_consume_token(RPAREN);
     setPropType();
-    paramList.add(propValObject.get(1) + ".getItems().contains(" + propValObject.get(0) + ");");
+    paramList.add( ((ArrayList)propValObject.get(1)).get(0) + ".getItems().contains(" + ((ArrayList)propValObject.get(0)).get(0) + ")");
     {if (true) return paramList;}
     throw new Error("Missing return statement in function");
   }
@@ -2253,7 +2253,7 @@ public class YailParser implements YailParserConstants {
     propValObject = listStuff();
     jj_consume_token(RPAREN);
     setPropType();
-    paramList.add("CsvUtil.toCsvRow(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    paramList.add("CsvUtil.toCsvRow(YailList.makeList(" + ((ArrayList)propValObject.get(0)).get(0) + ".getItems()))");
     {if (true) return paramList;}
     throw new Error("Missing return statement in function");
   }
@@ -2270,7 +2270,7 @@ public class YailParser implements YailParserConstants {
     propValObject = listStuff();
     jj_consume_token(RPAREN);
     setPropType();
-    paramList.add("CsvUtil.toCsvTable(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    paramList.add("CsvUtil.toCsvTable(YailList.makeList(" + ((ArrayList)propValObject.get(0)).get(0) + ".getItems()))");
     {if (true) return paramList;}
     throw new Error("Missing return statement in function");
   }

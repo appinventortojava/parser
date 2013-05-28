@@ -1620,7 +1620,7 @@ ArrayList yailGetListItem() :
 {
   < YAILGETITEM > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
   {
-    paramList.add(propValObject.get(0) + ".getItems().indexOf(" + propValObject.get(1) + ");");
+    paramList.add(((ArrayList)propValObject.get(0)).get(0) + ".getItems().indexOf(" + ((ArrayList)propValObject.get(1)).get(0) + " - 1)");
     return paramList;
   }
 }
@@ -1636,7 +1636,7 @@ ArrayList yailIsList() :
 {
   < YAILISALIST > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
   {
-    paramList.add(propValObject.get(0) + ".getClass().getName().contentEquals(\"YailList\");");
+    paramList.add(((ArrayList)propValObject.get(0)).get(0) + ".getClass().getName().contentEquals(\"YailList\")");
     return paramList;
   }
 }
@@ -1791,7 +1791,7 @@ ArrayList yailListFromCsvRow() :
 {
   < YAILLISTFROMCSVROW > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
   {
-    paramList.add("CsvUtil.fromCsvRow(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    paramList.add("CsvUtil.fromCsvRow(YailList.makeList(" + ((ArrayList)propValObject.get(0)).get(0)+ ".getItems()))");
     return paramList;
   }
 }
@@ -1808,7 +1808,7 @@ ArrayList yailListFromCsvTable() :
 {
   < YAILLISTFROMCSVTABLE> < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
   {
-    paramList.add("CsvUtil.fromCsvTable(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    paramList.add("CsvUtil.fromCsvTable(YailList.makeList(" + ((ArrayList)propValObject.get(0)).get(0) + ".getItems()))");
     return paramList;
   }
 }
@@ -1825,7 +1825,7 @@ ArrayList yailListInd() :
 {
   < YAILLISTINDEX > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
   {
-    paramList.add(propValObject.get(1) + ".getItems().indexOf(" + propValObject.get(0) + ");");
+    paramList.add(((ArrayList)propValObject.get(1)).get(0) + ".getItems().indexOf(" + ((ArrayList)propValObject.get(0)).get(0)+ ")");
     return (ArrayList)propValObject.get(0);
   }
 }
@@ -1860,7 +1860,7 @@ ArrayList yailListMember() :
 {
   < YAILLISTMEMBER > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
   {
-    paramList.add(propValObject.get(1) + ".getItems().contains(" + propValObject.get(0) + ");");
+    paramList.add( ((ArrayList)propValObject.get(1)).get(0) + ".getItems().contains(" + ((ArrayList)propValObject.get(0)).get(0) + ")");
     return paramList;
   }
 }
@@ -1910,7 +1910,7 @@ ArrayList yailListToCsvRow() :
 {
   < YAILLISTTOCSVROW > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
   {
-    paramList.add("CsvUtil.toCsvRow(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    paramList.add("CsvUtil.toCsvRow(YailList.makeList(" + ((ArrayList)propValObject.get(0)).get(0) + ".getItems()))");
     return paramList;
   }
 }
@@ -1927,7 +1927,7 @@ ArrayList yailListToCsvTable() :
 {
   < YAILLISTTOCSVTABLE > < LPAREN > propValObject = listStuff() < RPAREN > setPropType()
   {
-    paramList.add("CsvUtil.toCsvTable(YailList.makeList(" + propValObject.get(0) + ".getItems()));");
+    paramList.add("CsvUtil.toCsvTable(YailList.makeList(" + ((ArrayList)propValObject.get(0)).get(0) + ".getItems()))");
     return paramList;
   }
 }
