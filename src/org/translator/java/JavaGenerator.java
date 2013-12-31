@@ -19,10 +19,28 @@
 
 package org.translator.java;
 
-import org.translator.java.code.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+
+import org.translator.java.code.AssignmentStatement;
+import org.translator.java.code.ClassSegment;
+import org.translator.java.code.CodeSegment;
+import org.translator.java.code.CodeVisibility;
+import org.translator.java.code.ConstructorCall;
+import org.translator.java.code.DeclarationStatement;
+import org.translator.java.code.ElseIfSegment;
+import org.translator.java.code.ForEachSegment;
+import org.translator.java.code.ForRangeSegment;
+import org.translator.java.code.FunctionCall;
+import org.translator.java.code.FunctionSegment;
+import org.translator.java.code.IfSegment;
+import org.translator.java.code.Parameter;
+import org.translator.java.code.Statement;
+import org.translator.java.code.StaticFunctionCall;
+import org.translator.java.code.Value;
+import org.translator.java.code.ValueStatement;
+import org.translator.java.code.WhileSegment;
 
 /**
  * 
@@ -34,7 +52,7 @@ import java.util.HashMap;
 class JavaGenerator {
 	private String screen;
 	//components
-	private HashMap<String, AppComponent> components;
+	private LinkedHashMap<String, AppComponent> components;
 	//events (click, touched, etc..)
 	private ArrayList<CodeBlock> events;
 	//Java types like int, String, Lists, and Random
@@ -44,7 +62,7 @@ class JavaGenerator {
 	private ArrayList<String> permissions;
 	private int permNo;
 	protected JavaGenerator(String screen,
-			HashMap<String, AppComponent> components,
+			LinkedHashMap<String, AppComponent> components,
 			ArrayList<CodeBlock> events, ArrayList<JVar> variables,
 			ArrayList<Method> methods) {
 		permissions=new ArrayList<String>();

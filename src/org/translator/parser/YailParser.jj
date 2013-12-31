@@ -8,7 +8,7 @@ PARSER_BEGIN(YailParser)
 
 package org.translator.parser;
 import org.translator.java.AppComponent;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import org.translator.java.JVar;
 import org.translator.java.CodeBlock;
@@ -22,21 +22,11 @@ import org.translator.java.Method;
 public class YailParser
 {
   static String packageName = "blank";
-  HashMap<String, AppComponent> components = new HashMap<String, AppComponent>();
+  LinkedHashMap<String, AppComponent> components = new LinkedHashMap<String, AppComponent>();
   ArrayList<JVar> variables = new ArrayList<JVar>();
   ArrayList<CodeBlock> events = new ArrayList<CodeBlock>();
   ArrayList<Method > methods = new ArrayList<Method >();
-  HashMap<String, ArrayList<String >> lookUps = new HashMap<String, ArrayList<String >>(); //Delete this
-  {
-    try 
-    {
-      buildTable();
-    } 
-    catch (ParseException e) 
-    {
-      e.printStackTrace();
-    }
-  }
+ 
   CodeBlock codeBlock;
   boolean isSubEvent; //is in a code block
   boolean hasElse;
@@ -917,9 +907,16 @@ ArrayList opBlock() :
   operator = operation() propValObject = listParams() setPropType()
   {
     String leftSide = ((ArrayList)propValObject.get(0)).get(0).toString();
+	if (leftSide.contains(".Text()"))	{		leftSide = "Integer.parseInt(" + leftSide + ")";
+	}
+    
     String rightSide = ((ArrayList)propValObject.get(1)).get(0).toString();
+    if (rightSide.contains(".Text()"))
+	{
+		rightSide = "Integer.parseInt(" + rightSide + ")";
+	}
     paramList.add(leftSide + operator + rightSide);
-    paramList.add("float");
+    paramList.add("int");
     return paramList;
   }
 }
@@ -977,7 +974,7 @@ ArrayList propVal(boolean inList) : //possible property values
 {
   propertyValue = < ANYTEXT > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
 | propertyValue = < COLORVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
-| propertyValue = < DECIMALVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("float"); return propValList;}
+| propertyValue = < DECIMALVAL > {propValList.add(propertyValue.image); if(!inList) propValList.add("int"); return propValList;}
 | propertyValue = < TRUE > {propValList.add("true"); if(!inList) propValList.add("boolean"); return propValList;}
 | propertyValue = < RUNTIMEVAL > {propValList.add("false"); if(!inList) propValList.add("boolean"); return propValList;}
 | propertyValue = getVar() {propValList.add(propertyValue.image); if(!inList) propValList.add("String"); return propValList;}
@@ -2463,26 +2460,6 @@ ArrayList yailPrims() : //call to yail primitives
 
 
 /*
- * Non-Terminal for building a look up table
- */
-void buildTable() :
-{}
-{
-  {
-    ArrayList<String > values = new ArrayList();
-    values.add("Form");
-    values.add("switchForm");
-    lookUps.put("open-another-screen", values);
-    values = new ArrayList();
-    values.add("argsIL");
-    values.add("remove");
-    values.add("args");
-    values.add("setItems");
-    lookUps.put("yail-list-remove-item!", values);
-  }
-}
-
-/*
  * create strings of code to return
  */
 String generateCodeString(String yailType, String value) :
@@ -2494,7 +2471,7 @@ String generateCodeString(String yailType, String value) :
   }
 }
 
-HashMap<String, AppComponent > getComponents() :
+LinkedHashMap<String, AppComponent > getComponents() :
 {}
 {
   {return components;}

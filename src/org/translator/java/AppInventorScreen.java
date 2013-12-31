@@ -24,11 +24,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.translator.java.code.ClassSegment;
 import org.translator.java.code.SourceFile;
-import org.translator.parser.*;
-import org.translator.parser.Token;
+import org.translator.parser.ParseException;
+import org.translator.parser.SimpleCharStream;
+import org.translator.parser.YailParser;
+import org.translator.parser.YailParserTokenManager;
 
 
 /**
@@ -40,90 +43,6 @@ import org.translator.parser.Token;
  * the program javacc. 
  * 
  */
-//if you return a choose from a procedure the java will be wrong. also if you use a choose
-//as the start for a forrange loop. this is because a choose is exactly the same as an if else
-//in the yail file
-/*list of things not yet implemented (can't guarantee 100% correctness), organized by App Inventor Category and name:
- * 
- * Definition:
- * ProcedureWithResult
- * 
- * Text:
- * is text empty?
- * text<
- * text>
- * trim
- * upcase
- * downcase
- * starts at
- * contains
- * split at first
- * split at first of any
- * split
- * split at any
- * split at spaces
- * segment
- * replace all
- * List:
- * replace list item
- * select list item
- * insert list item
- * length of list
- * append to list
- * is in list?
- * pick random item
- * is list empty?
- * copy list
- * is a list?
- * list to csv row
- * list to csv table
- * list from csv row
- * list from csv table
- * 
- * Math:
- * sqrt
- * random set seed
- * negate
- * min 
- * max
- * quotient
- * remainder
- * modulo
- * abs 
- * round
- * floor
- * ceiling
- * expt
- * exp
- * log
- * sin 
- * cos
- * tan
- * asin
- * acos
- * atan
- * atan2
- * convert radians to degrees
- * convert degrees to radians
- * format as decimal
- * is a number
- * 
- * Control:
- * while
- * for range
- * choose
- * open another screen
- * open another screen with start value
- * get start value
- * close screen
- * close screen with value
- * close application
- * get plain start text
- * close screen with plain text
- * 
- * 
- */
-//test plan: test procedures with args and result in lots of situations
 public class AppInventorScreen {
 	int choose=0;
 	//r stands for Random. if it is false, we have not yet added a random number generator to the variables list.
@@ -135,7 +54,7 @@ public class AppInventorScreen {
 	private String packageName;
 	private JavaGenerator form;
 	//components, or structures in app inventor which have direct javabridge counterparts
-	private HashMap<String, AppComponent> components;
+	private LinkedHashMap<String, AppComponent> components;
 	//events, which are denoted by the keyword define-event in the .yail
 	private ArrayList<CodeBlock> events;
 	//user defined methods, signified by the keyword "def" in the .yail
@@ -154,7 +73,7 @@ public class AppInventorScreen {
 		this.screenName = screenName;
 		methods = new ArrayList<Method>();
 		variables = new ArrayList<JVar>();
-		components = new HashMap<String, AppComponent>();
+		components = new LinkedHashMap<String, AppComponent>();
 		events = new ArrayList<CodeBlock>();
 		yailParserTokenManager = 
 				new YailParserTokenManager(new SimpleCharStream(inputStream));
@@ -182,7 +101,7 @@ public class AppInventorScreen {
 
 	protected void genManifest(ArrayList<String> screenNames, HashMap<String, Boolean> permissions) {
 		screenNames.add(screenName);
-		HashMap<String, AppComponent> hm = components;
+		LinkedHashMap<String, AppComponent> hm = components;
 		for (String s : hm.keySet()){
 			AppComponent ac=hm.get(s);
 			if (ac.getType().contentEquals("Sound")){
